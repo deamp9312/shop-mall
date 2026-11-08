@@ -1,0 +1,15 @@
+# build
+target/
+
+# secrets (REQ-SE-003) - commit .env.example only
+.env
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+logs/
+
+# k6 output (REQ-NF-001); the numbers are recorded in README
+load-test/result.json

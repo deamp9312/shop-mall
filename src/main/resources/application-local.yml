@@ -1,0 +1,9 @@
+# local profile: docker compose infrastructure + demo seed data (REQ-DA-003)
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+
+shop:
+  demo:
+    # REQ-F-014 3): local only - lets the admin event screen make a consumer fail its next N events
+    failure-switch-enabled: true

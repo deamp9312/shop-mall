@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('상품')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content">
+    <form class="filters" method="get" th:action="@{/}">
+        <select name="category" aria-label="카테고리">
+            <option value="">전체 카테고리</option>
+            <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                    th:selected="${c.id == condition.categoryId}">카테고리</option>
+        </select>
+        <input type="search" name="q" th:value="${condition.keyword}" placeholder="상품명 검색" maxlength="100">
+        <select name="sort" aria-label="정렬">
+            <option value="LATEST" th:selected="${condition.sort.name() == 'LATEST'}">최신순</option>
+            <option value="PRICE_ASC" th:selected="${condition.sort.name() == 'PRICE_ASC'}">낮은 가격순</option>
+            <option value="PRICE_DESC" th:selected="${condition.sort.name() == 'PRICE_DESC'}">높은 가격순</option>
+        </select>
+        <button type="submit">검색</button>
+    </form>
+
+    <p th:if="${products.empty}" class="empty">조건에 맞는 상품이 없습니다.</p>
+
+    <ul class="product-grid">
+        <li class="product-card" th:each="p : ${products.content}" th:attr="data-product-id=${p.id}">
+            <a th:href="@{/products/{id}(id=${p.id})}">
+                <img th:src="${p.imageUrl}" th:alt="${p.name}" width="200" height="200">
+                <span class="name" th:text="${p.name}">상품명</span>
+                <span class="price" th:text="${#numbers.formatInteger(p.price, 1, 'COMMA')} + '원'">0원</span>
+                <span class="badge sold-out" th:if="${available[p.id] <= 0}">품절</span>
+            </a>
+        </li>
+    </ul>
+
+    <nav class="pagination" th:if="${products.totalPages > 1}">
+        <a th:each="i : ${#numbers.sequence(1, products.totalPages)}"
+           th:href="@{/(category=${condition.categoryId}, q=${condition.keyword}, sort=${condition.sort}, page=${i})}"
+           th:text="${i}" th:classappend="${i == products.number + 1} ? 'current'">1</a>
+    </nav>
+</main>
+</body>
+</html>

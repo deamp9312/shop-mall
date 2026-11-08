@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('장바구니')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content">
+    <h2>장바구니</h2>
+    <p th:if="${cart.lines.empty}" class="empty">장바구니가 비어 있습니다.</p>
+    <table class="cart" th:unless="${cart.lines.empty}">
+        <thead>
+        <tr><th>상품</th><th>가격</th><th>수량</th><th>소계</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="line : ${cart.lines}" th:attr="data-product-id=${line.productId}"
+            th:classappend="${!line.orderable()} ? 'excluded'">
+            <td>
+                <a th:href="@{/products/{id}(id=${line.productId})}" th:text="${line.productName}">상품</a>
+                <span class="badge sold-out" th:if="${line.soldOut()}">품절 - 주문 제외</span>
+                <span class="badge" th:if="${!line.onSale()}">판매 중지 - 주문 제외</span>
+                <span class="badge" th:if="${line.onSale() and !line.soldOut() and !line.orderable()}">재고 부족 - 주문 제외</span>
+            </td>
+            <td th:text="${#numbers.formatInteger(line.unitPrice, 1, 'COMMA')} + '원'">0원</td>
+            <td>
+                <select data-cart-qty aria-label="수량">
+                    <option th:each="n : ${#numbers.sequence(1, maxQuantity)}" th:value="${n}" th:text="${n}"
+                            th:selected="${n == line.quantity}">1</option>
+                </select>
+            </td>
+            <td th:text="${#numbers.formatInteger(line.subtotal(), 1, 'COMMA')} + '원'">0원</td>
+            <td><button type="button" data-cart-remove>삭제</button></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="total" th:unless="${cart.lines.empty}">
+        총액(주문 가능 상품) <strong th:text="${#numbers.formatInteger(cart.totalAmount(), 1, 'COMMA')} + '원'">0원</strong>
+    </p>
+    <p th:unless="${cart.lines.empty}">
+        <button type="button" data-cart-clear>전체 비우기</button>
+        <a class="button" th:href="@{/orders/checkout}">주문하기</a>
+    </p>
+    <p id="message" class="message" role="status"></p>
+</main>
+</body>
+</html>

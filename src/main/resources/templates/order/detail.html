@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문 상세')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content" data-order-detail th:attr="data-order-id=${order.id}">
+    <h2>주문 <span th:text="${order.id}">1</span></h2>
+    <dl class="facts">
+        <dt>상태</dt><dd data-order-status th:text="${order.status}">PAYMENT_PENDING</dd>
+        <dt>주문일시</dt><dd th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm:ss')}">-</dd>
+        <dt>총 금액</dt><dd th:text="${#numbers.formatInteger(order.totalAmount, 1, 'COMMA')} + '원'">0원</dd>
+        <dt th:if="${order.cancelReason != null}">취소 사유</dt>
+        <dd th:if="${order.cancelReason != null}" th:text="${order.cancelReason}">USER_CANCEL</dd>
+    </dl>
+    <p th:if="${order.status.name() == 'PAYMENT_PENDING'}">
+        <a class="button" th:href="@{/payments/{id}(id=${order.id})}">결제 화면으로</a>
+    </p>
+    <p th:if="${order.cancellable}"><button type="button" data-order-cancel>주문 취소</button></p>
+    <p id="message" class="message" role="status"></p>
+
+    <h3>상품</h3>
+    <table>
+        <thead><tr><th>상품</th><th>가격</th><th>수량</th><th>소계</th></tr></thead>
+        <tbody>
+        <tr th:each="item : ${order.items}">
+            <td th:text="${item.productName}">상품</td>
+            <td th:text="${#numbers.formatInteger(item.unitPrice, 1, 'COMMA')} + '원'">0원</td>
+            <td th:text="${item.quantity}">1</td>
+            <td th:text="${#numbers.formatInteger(item.unitPrice * item.quantity, 1, 'COMMA')} + '원'">0원</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>배송지</h3>
+    <dl class="facts">
+        <dt>받는 분</dt><dd th:text="${order.shipping.receiverName}">-</dd>
+        <dt>연락처</dt><dd th:text="${order.shipping.receiverPhone}">-</dd>
+        <dt>주소</dt><dd th:text="${order.shipping.address}">-</dd>
+    </dl>
+
+    <h3>결제 (모의)</h3>
+    <p th:if="${payment == null}">결제 준비 중입니다.</p>
+    <dl class="facts" th:if="${payment != null}">
+        <dt>결제 상태</dt><dd th:text="${payment.status()}">READY</dd>
+        <dt>결제수단</dt><dd th:text="${payment.method() == null} ? '-' : (${payment.method().name() == 'CARD'} ? '카드' : '계좌이체')">-</dd>
+        <dt>승인일시</dt><dd th:text="${payment.approvedAt() == null} ? '-' : ${#temporals.format(payment.approvedAt(), 'yyyy-MM-dd HH:mm:ss')}">-</dd>
+        <dt th:if="${payment.cancelledAt() != null}">취소일시</dt>
+        <dd th:if="${payment.cancelledAt() != null}" th:text="${#temporals.format(payment.cancelledAt(), 'yyyy-MM-dd HH:mm:ss')}">-</dd>
+    </dl>
+
+    <h3>상태 타임라인</h3>
+    <table class="timeline">
+        <thead><tr><th>시각</th><th>상태</th><th>원인</th><th>이벤트 ID</th></tr></thead>
+        <tbody>
+        <tr th:each="h : ${order.statusHistory}">
+            <td th:text="${#temporals.format(h.changedAt, 'yyyy-MM-dd HH:mm:ss.SSS')}">-</td>
+            <td th:text="${h.fromStatus == null} ? ${h.toStatus} : ${h.fromStatus} + ' → ' + ${h.toStatus}">PAID</td>
+            <td th:text="${h.eventType != null} ? ${h.eventType} : ${h.reason}">ORDER_PLACED</td>
+            <td><code th:text="${h.eventId}"></code></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>알림</h3>
+    <p th:if="${notifications.empty}" class="empty">알림이 없습니다.</p>
+    <ul th:unless="${notifications.empty}">
+        <li th:each="n : ${notifications}"
+            th:text="${#temporals.format(n.createdAt, 'yyyy-MM-dd HH:mm:ss')} + ' ' + ${n.message}">알림</li>
+    </ul>
+    <p><a th:href="@{/orders}">주문 내역으로</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('이벤트 처리 현황')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content">
+    <h2>Kafka 이벤트 처리 현황</h2>
+    <p>토픽·컨슈머 lag 은 kafka-ui(<code>http://localhost:8089</code>)에서 확인합니다.</p>
+
+    <form class="filters" method="get" th:action="@{/admin/events}">
+        <label>주문번호 <input type="number" name="orderId" min="1" th:value="${orderId}"></label>
+        <button type="submit">조회</button>
+    </form>
+
+    <section th:if="${orderId != null}">
+        <h3>주문 <span th:text="${orderId}">1</span> 이벤트 (시간순)</h3>
+        <p th:if="${trace.empty}" class="empty">기록이 없습니다.</p>
+        <table th:unless="${trace.empty}" data-event-trace>
+            <thead><tr><th>시각</th><th>구분</th><th>토픽</th><th>이벤트 ID</th><th>컨슈머 그룹</th><th>결과</th></tr></thead>
+            <tbody>
+            <tr th:each="e : ${trace}">
+                <td th:text="${#temporals.format(e.at(), 'HH:mm:ss.SSS')}">-</td>
+                <td th:text="${e.kind().name() == 'PUBLISHED'} ? '발행' : '소비'">발행</td>
+                <td th:text="${e.topic()}">topic</td>
+                <td><code th:text="${e.eventId()}">id</code></td>
+                <td th:text="${e.consumerGroup() == null} ? '-' : ${e.consumerGroup()}">-</td>
+                <td th:text="${e.result()}">SENT</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h3>DLT 목록 (최근 50건)</h3>
+        <p th:if="${deadLetters.empty}" class="empty">DLT 메시지가 없습니다.</p>
+        <table th:unless="${deadLetters.empty}">
+            <thead><tr><th>ID</th><th>시각</th><th>원 토픽</th><th>오류</th><th>재처리</th></tr></thead>
+            <tbody>
+            <tr th:each="d : ${deadLetters}" th:attr="data-dead-letter-id=${d.id}">
+                <td th:text="${d.id}">1</td>
+                <td th:text="${#temporals.format(d.createdAt, 'yyyy-MM-dd HH:mm:ss')}">-</td>
+                <td th:text="${d.originalTopic}">topic</td>
+                <td class="error-text" th:text="${d.errorMessage}">error</td>
+                <td>
+                    <span th:if="${d.retriedAt != null}"
+                          th:text="${#temporals.format(d.retriedAt, 'HH:mm:ss')} + ' 재처리함'">재처리함</span>
+                    <button type="button" th:if="${d.retriedAt == null}" data-dlt-retry>재처리</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h3>아웃박스 발행 실패 (FAILED, 최근 50건)</h3>
+        <p data-held-back-outbox>같은 주문의 FAILED 이벤트 뒤에서 발행 보류 중인 이벤트:
+            <strong th:text="${heldBackOutboxEvents}">0</strong>건</p>
+        <p th:if="${failedOutboxEvents.empty}" class="empty">발행 실패한 이벤트가 없습니다.</p>
+        <table th:unless="${failedOutboxEvents.empty}">
+            <thead><tr><th>ID</th><th>시각</th><th>토픽</th><th>주문번호</th><th>이벤트 ID</th><th>시도</th><th>보류 중 후속</th><th>다시 발행</th></tr></thead>
+            <tbody>
+            <tr th:each="f : ${failedOutboxEvents}" th:attr="data-outbox-id=${f.id()}">
+                <td th:text="${f.id()}">1</td>
+                <td th:text="${#temporals.format(f.createdAt(), 'yyyy-MM-dd HH:mm:ss')}">-</td>
+                <td th:text="${f.topic()}">topic</td>
+                <td th:text="${f.messageKey()}">1</td>
+                <td><code th:text="${f.eventId()}">id</code></td>
+                <td th:text="${f.retryCount()}">5</td>
+                <td th:text="${f.heldBack()} + '건'">0건</td>
+                <td><button type="button" data-outbox-requeue>다시 발행</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section th:if="${failureSwitchEnabled}">
+        <h3>장애 시연 스위치 (local 전용)</h3>
+        <p>선택한 컨슈머가 다음 N건을 모든 시도(1s·2s·4s 재시도 포함)에서 실패시켜 DLT 로 보냅니다.</p>
+        <form id="failure-switch" class="filters" onsubmit="return false">
+            <select name="consumerGroup">
+                <option th:each="g : ${consumerGroups}" th:value="${g}" th:text="${g}">shop-order</option>
+            </select>
+            <input type="number" name="count" min="0" max="100" value="1">
+            <button type="button" data-failure-switch>적용</button>
+        </form>
+        <p>남은 강제 실패: <span data-remaining-failures th:text="${remainingFailures}">{}</span></p>
+    </section>
+    <p id="message" class="message" role="status"></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,84 @@
+# Common settings. Secrets are environment variables only (REQ-SE-003, see .env.example).
+spring:
+  application:
+    name: shop-mall
+  profiles:
+    default: local
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:shop}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+  flyway:
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    # REQ-IF-002 / REQ-NF-002 5): no lost or duplicated writes from producer retries; exactly-once is out of scope
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+        # A send gives up within 10 s, so the outbox relay (event/OutboxRelay) never waits minutes during an outage
+        max.block.ms: 10000
+        request.timeout.ms: 5000
+        delivery.timeout.ms: 10000
+    consumer:
+      # A new consumer group starts from the oldest record, so events published before it joined are not skipped
+      auto-offset-reset: earliest
+    listener:
+      # REQ-NF-002 1): commit the offset after each record (the handler has already committed its DB transaction)
+      ack-mode: record
+  task:
+    scheduling:
+      # OutboxRelay, PaymentTimeoutJob and the delayed mock-PG answer share the scheduler. With one thread a relay
+      # blocked by a Kafka outage (up to max.block.ms per send) would also hold back timeouts and delayed approvals.
+      pool:
+        size: 3
+  cache:
+    # REQ-F-004: only the product cache exists; its TTL and JSON serializer are set in ProductCacheConfig
+    cache-names: product
+
+shop:
+  order:
+    # REQ-F-006 2), REQ-F-010 4): payment deadline = order time + 15 minutes. SHOP_PAYMENT_TIMEOUT=1m shortens it for a
+    # local demo of the automatic cancellation.
+    payment-timeout: ${SHOP_PAYMENT_TIMEOUT:15m}
+    # REQ-F-010 1): how often PaymentTimeoutJob looks for overdue orders (ISO-8601 duration)
+    timeout-check-interval: PT1M
+  payment:
+    # REQ-F-008 2): how late the mock PG answers for [응답 지연]
+    mock-delay: 10s
+  demo:
+    # REQ-F-014 3): the consumer failure switch of the admin event screen. Enabled in the local profile only.
+    failure-switch-enabled: false
+
+server:
+  servlet:
+    session:
+      timeout: 30m
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-components: always
+
+logging:
+  pattern:
+    # REQ-NF-003: time, level, traceId, orderId, module(logger), message
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [traceId=%X{traceId:--}] [orderId=%X{orderId:--}] [%thread] %logger{40} - %msg%n"

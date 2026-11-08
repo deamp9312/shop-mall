@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${product.name})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content product-detail" th:attr="data-product-id=${product.id}">
+    <img th:src="${product.imageUrl}" th:alt="${product.name}" width="320" height="320">
+    <section>
+        <p class="category" th:text="${product.categoryName}">카테고리</p>
+        <h2 th:text="${product.name}">상품명</h2>
+        <p class="price" th:text="${#numbers.formatInteger(product.price, 1, 'COMMA')} + '원'">0원</p>
+        <p class="description" th:text="${product.description}">설명</p>
+        <p>가용 재고 <strong id="available-stock" th:text="${available}">0</strong>개</p>
+
+        <p th:if="${!product.onSale()}" class="badge">판매 중지된 상품입니다</p>
+        <p th:if="${product.onSale() and available <= 0}" class="badge sold-out">품절</p>
+
+        <th:block th:if="${product.onSale() and available > 0}">
+            <label>수량
+                <select id="quantity">
+                    <option th:each="n : ${#numbers.sequence(1, maxSelectable)}" th:value="${n}" th:text="${n}">1</option>
+                </select>
+            </label>
+            <button type="button" th:if="${currentMember != null}" data-cart-add>장바구니 담기</button>
+            <a th:if="${currentMember == null}" class="button" th:href="@{/login}">로그인 후 장바구니 담기</a>
+            <button type="button" th:if="${currentMember != null}" data-buy-now>바로 주문</button>
+        </th:block>
+        <th:block th:unless="${product.onSale() and available > 0}">
+            <button type="button" disabled>장바구니 담기</button>
+            <button type="button" disabled>바로 주문</button>
+        </th:block>
+        <p id="message" class="message" role="status"></p>
+    </section>
+</main>
+</body>
+</html>

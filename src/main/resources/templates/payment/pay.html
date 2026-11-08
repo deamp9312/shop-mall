@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('모의 결제')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<!-- REQ-F-008: no real PG and no card or account number field -->
+<p class="mock-banner">포트폴리오용 모의 결제 — 실제 결제되지 않음</p>
+<main class="content narrow" data-payment
+      th:attr="data-order-id=${order.id},data-expires-at=${expiresAtEpochMillis},data-payable=${payable},data-payment-status=${payment == null ? '' : payment.status()}">
+    <h2>모의 결제</h2>
+    <dl class="facts">
+        <dt>주문번호</dt><dd th:text="${order.id}">1</dd>
+        <dt>결제 금액</dt><dd th:text="${#numbers.formatInteger(order.totalAmount, 1, 'COMMA')} + '원'">0원</dd>
+        <dt>남은 시간</dt><dd><span data-countdown>--:--</span></dd>
+    </dl>
+    <fieldset class="stack">
+        <legend>결제수단 (표시용)</legend>
+        <label th:each="method, it : ${methods}">
+            <input type="radio" name="method" th:value="${method}" th:checked="${it.first}">
+            <span th:text="${method.name() == 'CARD'} ? '카드' : '계좌이체'">카드</span>
+        </label>
+    </fieldset>
+    <p class="actions">
+        <button type="button" data-approve="SUCCESS" disabled>결제 성공</button>
+        <button type="button" data-approve="FAIL" disabled>결제 실패</button>
+        <button type="button" data-approve="DELAY" disabled>응답 지연(10초)</button>
+    </p>
+    <p id="message" class="message" role="status"></p>
+    <p><a th:href="@{/orders/{id}(id=${order.id})}">주문 상세 보기</a></p>
+</main>
+</body>
+</html>

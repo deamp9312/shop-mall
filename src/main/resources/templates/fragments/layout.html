@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' - shop-mall'">shop-mall</title>
+    <!-- REQ-SE-001 3): fetch requests copy this token into the header named below -->
+    <th:block th:if="${currentMember != null}">
+        <meta name="_csrf" th:content="${_csrf.token}">
+        <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    </th:block>
+    <link rel="stylesheet" th:href="@{/css/shop.css}">
+    <script th:src="@{/js/shop.js}" defer></script>
+</head>
+<body>
+<header th:fragment="header" class="site-header">
+    <h1>shop-mall</h1>
+    <nav class="site-nav">
+        <a th:href="@{/}">상품</a>
+        <th:block th:if="${currentMember != null}">
+            <a th:href="@{/cart}">장바구니</a>
+            <a th:href="@{/orders}">주문 내역</a>
+            <a th:if="${currentMember.admin}" th:href="@{/admin/products}">관리자</a>
+            <a th:if="${currentMember.admin}" th:href="@{/admin/events}">이벤트</a>
+            <span class="who" th:text="${currentMember.name} + '님'">회원님</span>
+            <form class="inline" method="post" th:action="@{/logout}">
+                <button type="submit" class="link-button">로그아웃</button>
+            </form>
+        </th:block>
+        <th:block th:if="${currentMember == null}">
+            <a th:href="@{/login}">로그인</a>
+            <a th:href="@{/signup}">회원가입</a>
+        </th:block>
+    </nav>
+</header>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문서')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content" data-checkout th:attr="data-idempotency-key=${idempotencyKey},data-from-cart=${fromCart}">
+    <h2>주문서</h2>
+    <p th:if="${lines.empty}" class="empty">주문할 수 있는 상품이 없습니다. <a th:href="@{/cart}">장바구니로</a></p>
+    <th:block th:unless="${lines.empty}">
+        <table class="cart">
+            <thead>
+            <tr><th>상품</th><th>가격</th><th>수량</th><th>소계</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="line : ${lines}" th:attr="data-product-id=${line.productId},data-qty=${line.quantity}">
+                <td th:text="${line.productName}">상품</td>
+                <td th:text="${#numbers.formatInteger(line.unitPrice, 1, 'COMMA')} + '원'">0원</td>
+                <td th:text="${line.quantity}">1</td>
+                <td th:text="${#numbers.formatInteger(line.subtotal(), 1, 'COMMA')} + '원'">0원</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="total">총 결제 금액 <strong th:text="${#numbers.formatInteger(totalAmount, 1, 'COMMA')} + '원'">0원</strong></p>
+
+        <form id="shipping-form" class="stack narrow" onsubmit="return false">
+            <h3>배송지</h3>
+            <label>받는 분 <input name="receiverName" required maxlength="50" autocomplete="name"></label>
+            <label>연락처 <input name="receiverPhone" required pattern="[0-9\-]{9,20}" placeholder="010-0000-0000"
+                              autocomplete="tel"></label>
+            <label>주소 <input name="line" required maxlength="255" autocomplete="street-address"></label>
+        </form>
+        <p><button type="button" data-place-order>결제하기</button></p>
+    </th:block>
+    <p id="message" class="message" role="status"></p>
+</main>
+</body>
+</html>

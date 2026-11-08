@@ -1,0 +1,215 @@
+/* Text color is yellow by the project owner's rule; a dark background keeps it readable. */
+:root {
+    --text: #ffd400;
+    --background: #1b1b1f;
+    --border: #3a3a40;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+    color: var(--text);
+    background: var(--background);
+}
+
+.site-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.site-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.content {
+    padding: 24px;
+}
+
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+a,
+.link-button {
+    color: var(--text);
+}
+
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.inline {
+    display: inline;
+}
+
+.narrow {
+    max-width: 480px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+input,
+select,
+textarea,
+button,
+.button {
+    color: var(--text);
+    background: #26262c;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font: inherit;
+}
+
+button,
+.button {
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stack label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.product-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.product-card a {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.product-card img,
+.product-detail img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    border-radius: 6px;
+}
+
+.product-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.badge {
+    display: inline-block;
+    border: 1px solid var(--text);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.pagination .current {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+    text-align: left;
+}
+
+tr.excluded {
+    opacity: 0.6;
+}
+
+.message.error,
+.field-error {
+    font-weight: bold;
+}
+
+/* REQ-F-008: fixed notice that the payment is a mock */
+.mock-banner {
+    position: sticky;
+    top: 0;
+    margin: 0;
+    padding: 10px 24px;
+    border-bottom: 2px solid var(--text);
+    background: var(--background);
+    font-weight: bold;
+    text-align: center;
+}
+
+.facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+}
+
+.facts dd {
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.error-text {
+    max-width: 420px;
+    word-break: break-all;
+    font-size: 0.85rem;
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문 내역')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content">
+    <h2>주문 내역</h2>
+    <p th:if="${orders.empty}" class="empty">주문 내역이 없습니다.</p>
+    <table th:unless="${orders.empty}">
+        <thead>
+        <tr><th>주문번호</th><th>주문일시</th><th>상품</th><th>금액</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="o : ${orders}">
+            <td><a th:href="@{/orders/{id}(id=${o.orderId})}" th:text="${o.orderId}">1</a></td>
+            <td th:text="${#temporals.format(o.orderedAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 12:00</td>
+            <td th:text="${o.otherItemCount > 0} ? ${o.representativeProductName} + ' 외 ' + ${o.otherItemCount} + '건' : ${o.representativeProductName}">상품</td>
+            <td th:text="${#numbers.formatInteger(o.totalAmount, 1, 'COMMA')} + '원'">0원</td>
+            <td th:text="${o.status}">PAYMENT_PENDING</td>
+        </tr>
+        </tbody>
+    </table>
+    <nav class="pagination" th:if="${orders.totalPages > 1}">
+        <a th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}" th:href="@{/orders(page=${i})}"
+           th:text="${i + 1}" th:classappend="${i == orders.number} ? 'current'">1</a>
+    </nav>
+</main>
+</body>
+</html>

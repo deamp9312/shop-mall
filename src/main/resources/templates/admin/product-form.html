@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${product == null} ? '상품 등록' : '상품 수정')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="content narrow">
+    <h2 th:text="${product == null} ? '상품 등록' : '상품 수정 #' + ${product.id}">상품 등록</h2>
+    <p class="message" th:if="${notice}" th:text="${notice}"></p>
+    <p class="message error" th:if="${error}" th:text="${error}"></p>
+
+    <form method="post" class="stack" th:object="${form}"
+          th:action="${product == null} ? @{/admin/products} : @{/admin/products/{id}(id=${product.id})}">
+        <label>카테고리
+            <select th:field="*{categoryId}" required>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}">카테고리</option>
+            </select>
+        </label>
+        <label>상품명 <input type="text" th:field="*{name}" required maxlength="100"></label>
+        <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">오류</p>
+        <label>가격(원) <input type="number" th:field="*{price}" required min="0" max="100000000"></label>
+        <p class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">오류</p>
+        <label>설명 <textarea th:field="*{description}" required maxlength="2000" rows="4"></textarea></label>
+        <p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">오류</p>
+        <label>이미지(샘플 파일)
+            <select th:field="*{imageFileName}" required>
+                <option th:each="img : ${images}" th:value="${img}" th:text="${img}">placeholder.svg</option>
+            </select>
+        </label>
+        <p class="field-error" th:if="${#fields.hasErrors('imageFileName')}" th:errors="*{imageFileName}">오류</p>
+        <button type="submit" th:text="${product == null} ? '등록' : '수정'">등록</button>
+    </form>
+
+    <th:block th:if="${product != null}">
+        <h3>재고 조정</h3>
+        <p>현재 가용 재고(Redis) <strong th:text="${available}">0</strong>개</p>
+        <form method="post" class="stack" th:action="@{/admin/products/{id}/stock(id=${product.id})}">
+            <label>새 DB 재고 수량 <input type="number" name="newStock" required min="0" max="1000000"></label>
+            <button type="submit">재고 조정</button>
+        </form>
+
+        <h3>판매 상태</h3>
+        <p th:text="${product.onSale()} ? '판매 중' : '판매 중지'">판매 중</p>
+        <form method="post" th:if="${product.onSale()}"
+              th:action="@{/admin/products/{id}/stop-sale(id=${product.id})}">
+            <button type="submit">판매 중지</button>
+        </form>
+    </th:block>
+    <p><a th:href="@{/admin/products}">목록으로</a></p>
+</main>
+</body>
+</html>
