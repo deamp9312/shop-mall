@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 
-/** Locks an email for 5 minutes after 5 failed logins (REQ-SE-001 4). Counter key: RedisKeys.loginFailure. */
+/**
+ * Locks an email for 5 minutes after 5 failed logins (REQ-SE-001 4). Counter key: RedisKeys.loginFailure.
+ *
+ * 로그인에 5번 실패한 이메일을 5분 동안 잠근다 (REQ-SE-001 4). 카운터 키: RedisKeys.loginFailure.
+ */
 @Service
 public class LoginAttemptService {
 

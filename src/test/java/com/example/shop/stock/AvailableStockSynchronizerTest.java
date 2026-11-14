@@ -20,6 +20,9 @@ import static org.awaitility.Awaitility.await;
 /**
  * REQ-F-007 6): Redis available stock = DB stock - quantity still RESERVED, also while orders are in flight
  * (the step-2 README race: a resync must not erase a reservation whose order has not committed yet).
+ *
+ * REQ-F-007 6): Redis 가용 재고 = DB 재고 - 아직 RESERVED인 수량. 주문이 진행 중일 때도 성립한다 (2단계 README의 경쟁
+ * 상황: 재동기화가 아직 커밋되지 않은 주문의 선점을 지우면 안 된다).
  */
 class AvailableStockSynchronizerTest extends IntegrationTestSupport {
 
@@ -70,6 +73,7 @@ class AvailableStockSynchronizerTest extends IntegrationTestSupport {
         CountDownLatch commit = new CountDownLatch(1);
 
         // The order transaction as OrderService runs it: reservation row first, Redis decrement, commit later.
+        // OrderService가 실행하는 그대로의 주문 트랜잭션: 선점 행 먼저, Redis 차감, 커밋은 나중.
         CompletableFuture<Void> order = CompletableFuture.runAsync(() -> transaction.executeWithoutResult(status -> {
             reservations.save(new StockReservation(1L, PRODUCT_ID, 7));
             redis.opsForValue().decrement(RedisKeys.stock(PRODUCT_ID), 7);

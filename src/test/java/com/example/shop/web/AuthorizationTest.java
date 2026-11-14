@@ -13,7 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** REQ-SE-001 1) path x role matrix, 3) CSRF, and REQ-F-013 2) USER gets 403 on /admin. */
+/**
+ * REQ-SE-001 1) path x role matrix, 3) CSRF, and REQ-F-013 2) USER gets 403 on /admin.
+ *
+ * REQ-SE-001 1) 경로 x 역할 매트릭스, 3) CSRF, 그리고 REQ-F-013 2) USER는 /admin에서 403을 받는다.
+ */
 class AuthorizationTest extends SeededIntegrationTestSupport {
 
     @Test

@@ -24,12 +24,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** REQ-F-013 (admin product and stock management) and REQ-IF-001 6) resync API. */
+/**
+ * REQ-F-013 (admin product and stock management) and REQ-IF-001 6) resync API.
+ *
+ * REQ-F-013 (관리자 상품·재고 관리)와 REQ-IF-001 6) 재동기화 API.
+ */
 class AdminProductStockTest extends SeededIntegrationTestSupport {
 
     private static final long ADJUSTED_PRODUCT = 12L;     // seed stock 100
+    // 시드 재고 100
     private static final long RESERVED_PRODUCT = 13L;     // seed stock 55
+    // 시드 재고 55
     private static final long RESYNC_PRODUCT = 14L;       // seed stock 65
+    // 시드 재고 65
     private static final long RESERVATION_ORDER_ID = 9_999L;
     private static final String NEW_PRODUCT_NAME = "관리자 등록 테스트 상품";
 
@@ -70,6 +77,7 @@ class AdminProductStockTest extends SeededIntegrationTestSupport {
     void adjustmentMovesRedisByTheDeltaSoReservationsStayCounted() throws Exception {
         reservations.save(new StockReservation(RESERVATION_ORDER_ID, RESERVED_PRODUCT, 30));
         redis.opsForValue().set(RedisKeys.stock(RESERVED_PRODUCT), "25"); // 55 - 30 reserved
+        // 55 - 선점 30
 
         adjustStock(RESERVED_PRODUCT, 60);
         assertThat(redis.opsForValue().get(RedisKeys.stock(RESERVED_PRODUCT))).isEqualTo("30");

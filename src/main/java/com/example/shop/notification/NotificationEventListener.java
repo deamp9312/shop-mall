@@ -10,7 +10,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-/** Notification module consumer (group shop-notification): one notice per payment result event. */
+/**
+ * Notification module consumer (group shop-notification): one notice per payment result event.
+ *
+ * 알림 모듈 컨슈머 (그룹 shop-notification): 결제 결과 이벤트마다 알림 하나를 남긴다.
+ */
 @Component
 class NotificationEventListener {
 

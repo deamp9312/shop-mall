@@ -18,7 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Cart REST API (REQ-IF-001 1, REQ-F-005). Quantity per request is 1..10; more than 10 is 400. */
+/**
+ * Cart REST API (REQ-IF-001 1, REQ-F-005). Quantity per request is 1..10; more than 10 is 400.
+ *
+ * 장바구니 REST API (REQ-IF-001 1, REQ-F-005). 요청당 수량은 1..10이며 10을 넘으면 400.
+ */
 @RestController
 @RequestMapping("/api/cart")
 public class CartApiController {

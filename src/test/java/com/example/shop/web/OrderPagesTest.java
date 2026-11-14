@@ -39,6 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * REQ-F-012 (order list, detail, timeline with cause events, 404 for another member's order) and the mock payment
  * screen of REQ-F-008 2), 5) (fixed notice, owner only, buttons disabled after the deadline).
+ *
+ * REQ-F-012 (주문 목록, 상세, 원인 이벤트가 있는 타임라인, 다른 회원의 주문은 404)와 REQ-F-008 2), 5)의 모의 결제 화면
+ * (고정 안내문, 소유자만, 기한이 지나면 버튼 비활성화).
  */
 class OrderPagesTest extends IntegrationTestSupport {
 

@@ -27,6 +27,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *     The resync is forced into the gap between the rollback (DB locks released) and the compensation by a
  *     synchronization registered before the code under test, so its afterCompletion runs first.</li>
  * </ul>
+ *
+ * 선점 / 해제 / 관리자 조정의 Redis 쪽에 대한 리뷰 지적 Medium-1, Medium-2 (2026-11-06):
+ * <ul>
+ *     <li>여러 상품을 해제할 때 한 카운터가 실패하면 다른 카운터만 복원된 채로 남으면 안 된다;</li>
+ *     <li>롤백된 DB를 이미 읽은 재동기화 위에 롤백 보상을 적용하면 안 된다.
+ *     테스트 대상 코드보다 먼저 등록한 synchronization으로 롤백(DB 락 해제)과 보상 사이에 재동기화를
+ *     강제로 끼워 넣는다. 그래서 그 afterCompletion이 먼저 실행된다.</li>
+ * </ul>
  */
 class StockCompensationTest extends IntegrationTestSupport {
 
@@ -71,7 +79,11 @@ class StockCompensationTest extends IntegrationTestSupport {
         products.deleteAll();
     }
 
-    /** Medium-1: CUP's counter is not a number, so the release fails; MUG must not keep its +3. */
+    /**
+     * Medium-1: CUP's counter is not a number, so the release fails; MUG must not keep its +3.
+     *
+     * Medium-1: CUP의 카운터가 숫자가 아니어서 해제가 실패한다. MUG에 +3이 남아 있으면 안 된다.
+     */
     @Test
     void releaseOverSeveralProductsRestoresNothingWhenOneCounterFails() {
         reservations.save(new StockReservation(ORDER_ID, MUG, 3));
@@ -88,7 +100,11 @@ class StockCompensationTest extends IntegrationTestSupport {
                 ORDER_ID)).containsOnly("RESERVED");
     }
 
-    /** Medium-2, order path: reserve 3 -> rollback -> resync writes 10 -> the compensation must not make it 13. */
+    /**
+     * Medium-2, order path: reserve 3 -> rollback -> resync writes 10 -> the compensation must not make it 13.
+     *
+     * Medium-2, 주문 경로: 3 선점 -> 롤백 -> 재동기화가 10을 씀 -> 보상이 13으로 만들면 안 된다.
+     */
     @Test
     void reservationRolledBackAfterAResyncIsNotGivenBackTwice() {
         transaction.executeWithoutResult(status -> {
@@ -101,7 +117,11 @@ class StockCompensationTest extends IntegrationTestSupport {
         assertThat(products.databaseStock(MUG)).isEqualTo(10);
     }
 
-    /** Medium-2, admin path: 10 -> 5 rolled back -> resync writes 10 -> the compensation must not make it 15. */
+    /**
+     * Medium-2, admin path: 10 -> 5 rolled back -> resync writes 10 -> the compensation must not make it 15.
+     *
+     * Medium-2, 관리자 경로: 10 -> 5 롤백 -> 재동기화가 10을 씀 -> 보상이 15로 만들면 안 된다.
+     */
     @Test
     void adjustmentRolledBackAfterAResyncIsNotUndoneTwice() {
         transaction.executeWithoutResult(status -> {
@@ -114,7 +134,11 @@ class StockCompensationTest extends IntegrationTestSupport {
         assertThat(products.databaseStock(MUG)).isEqualTo(10);
     }
 
-    /** Medium-2, release path: release 3 rolled back -> resync writes 7 -> the compensation must not make it 4. */
+    /**
+     * Medium-2, release path: release 3 rolled back -> resync writes 7 -> the compensation must not make it 4.
+     *
+     * Medium-2, 해제 경로: 3 해제 롤백 -> 재동기화가 7을 씀 -> 보상이 4로 만들면 안 된다.
+     */
     @Test
     void releaseRolledBackAfterAResyncIsNotUndoneTwice() {
         reservations.save(new StockReservation(ORDER_ID, MUG, 3));
@@ -132,6 +156,9 @@ class StockCompensationTest extends IntegrationTestSupport {
     /**
      * Runs a full resync in another thread (its own transaction) as soon as the current transaction has rolled back,
      * before any synchronization registered later.
+     *
+     * 현재 트랜잭션이 롤백되자마자, 나중에 등록된 synchronization보다 먼저 다른 스레드(자기 트랜잭션)에서 전체
+     * 재동기화를 실행한다.
      */
     private void resyncRightAfterRollback() {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

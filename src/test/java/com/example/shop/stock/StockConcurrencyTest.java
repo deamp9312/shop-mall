@@ -40,6 +40,10 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  * REQ-NF-001 1), 2): 200 members order the last 100 units of one product at the same moment through the order API.
  * Exactly 100 orders succeed and nothing is oversold; then 60 of them pay and 40 fail, and the DB stock and the Redis
  * available stock both end at 40. Run 10 times in a row for verification 1) (see README "동시성 검증").
+ *
+ * REQ-NF-001 1), 2): 회원 200명이 주문 API로 한 상품의 마지막 100개를 동시에 주문한다. 정확히 100건만 성공하고 초과
+ * 판매는 없다. 그다음 60건은 결제하고 40건은 실패하며, DB 재고와 Redis 가용 재고가 모두 40으로 끝난다. 검증 1)을 위해
+ * 10번 연속으로 실행한다 (README "동시성 검증" 참고).
  */
 class StockConcurrencyTest extends IntegrationTestSupport {
 
@@ -102,6 +106,8 @@ class StockConcurrencyTest extends IntegrationTestSupport {
         assertThat(products.databaseStock(PRODUCT)).isEqualTo(STOCK);
         // Let the relay and the payment consumer finish the 100 order.created events before cleanUp deletes their
         // rows; deleting under them deadlocked now and then and left this product behind for the next test.
+        // cleanUp이 행을 지우기 전에 릴레이와 결제 컨슈머가 order.created 이벤트 100개를 끝내게 둔다. 처리 중에 지우면
+        // 가끔 교착 상태가 나서 이 상품이 다음 테스트까지 남았다.
         await().atMost(OrderFlow.ASYNC_TIMEOUT).until(() -> readyPayments() == STOCK);
     }
 
@@ -130,7 +136,11 @@ class StockConcurrencyTest extends IntegrationTestSupport {
         assertThat(products.available(PRODUCT)).isEqualTo(String.valueOf(STOCK - PAID));
     }
 
-    /** Every buyer is a different member ordering one unit, all released at once. */
+    /**
+     * Every buyer is a different member ordering one unit, all released at once.
+     *
+     * 구매자마다 다른 회원이 한 개씩 주문하고, 모두 동시에 출발한다.
+     */
     private List<Order> placeConcurrently() throws Exception {
         return runConcurrently(BUYERS, i -> {
             MemberPrincipal member = buyer(i);
@@ -164,7 +174,11 @@ class StockConcurrencyTest extends IntegrationTestSupport {
                 Integer.class, FIRST_MEMBER_ID, FIRST_MEMBER_ID + BUYERS - 1, status);
     }
 
-    /** Starts every task at the same moment (one thread each) and returns the results in task order. */
+    /**
+     * Starts every task at the same moment (one thread each) and returns the results in task order.
+     *
+     * 모든 작업을 같은 순간에 시작하고(작업마다 스레드 하나) 결과를 작업 순서대로 돌려준다.
+     */
     private static <T> List<T> runConcurrently(int count, ThrowingTask<T> task) throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(count);
         CountDownLatch start = new CountDownLatch(1);

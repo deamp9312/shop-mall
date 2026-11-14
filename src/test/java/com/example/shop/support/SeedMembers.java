@@ -3,7 +3,11 @@ package com.example.shop.support;
 import com.example.shop.member.MemberPrincipal;
 import com.example.shop.member.MemberRole;
 
-/** Principals of the seed accounts (db/seed), for MockMvc's user(...) post-processor. */
+/**
+ * Principals of the seed accounts (db/seed), for MockMvc's user(...) post-processor.
+ *
+ * 시드 계정(db/seed)의 principal. MockMvc의 user(...) post-processor용.
+ */
 public final class SeedMembers {
 
     public static final String USER1_EMAIL = "user1@shop.local";

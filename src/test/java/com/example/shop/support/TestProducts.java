@@ -7,6 +7,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * Products created by a test on the empty schema, with the Redis available stock set to the DB stock. Each test class
  * uses its own id range and calls {@link #deleteAll()} afterwards.
+ *
+ * 빈 스키마에서 테스트가 만든 상품. Redis 가용 재고를 DB 재고와 같게 맞춘다. 테스트 클래스마다 자기 id 범위를 쓰고
+ * 끝나면 {@link #deleteAll()}을 호출한다.
  */
 public final class TestProducts {
 
@@ -37,7 +40,11 @@ public final class TestProducts {
         return jdbc.queryForObject("select stock from products where id = ?", Integer.class, productId);
     }
 
-    /** Also removes the orders, reservations and outbox rows of these products' test orders. */
+    /**
+     * Also removes the orders, reservations and outbox rows of these products' test orders.
+     *
+     * 이 상품들로 만든 테스트 주문의 주문, 선점, 아웃박스 행도 지운다.
+     */
     public void deleteAll() {
         jdbc.update("delete from outbox_events where message_key in (select cast(order_id as char)"
                 + " from stock_reservations r join products p on p.id = r.product_id where p.category_id = ?)",

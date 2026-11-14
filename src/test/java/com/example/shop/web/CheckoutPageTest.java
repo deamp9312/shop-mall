@@ -17,7 +17,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 
-/** REQ-F-006 1) order form, REQ-SE-002 1) a new idempotency key per visit; order buttons are enabled. */
+/**
+ * REQ-F-006 1) order form, REQ-SE-002 1) a new idempotency key per visit; order buttons are enabled.
+ *
+ * REQ-F-006 1) 주문서, REQ-SE-002 1) 방문마다 새 멱등 키. 주문 버튼이 활성화되어 있다.
+ */
 class CheckoutPageTest extends SeededIntegrationTestSupport {
 
     private static final Pattern KEY = Pattern.compile("data-idempotency-key=\"([0-9a-f-]{36})\"");

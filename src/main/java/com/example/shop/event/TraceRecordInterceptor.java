@@ -14,6 +14,9 @@ import java.nio.charset.StandardCharsets;
 /**
  * Restores traceId (Kafka header) and orderId (message key) into the MDC while a record is handled, so consumer,
  * retry and DLT log lines carry the traceId of the HTTP request that started the flow (REQ-NF-003 1).
+ *
+ * 레코드를 처리하는 동안 traceId(Kafka 헤더)와 orderId(메시지 키)를 MDC에 복원한다. 그래서 컨슈머, 재시도, DLT 로그
+ * 줄에 흐름을 시작한 HTTP 요청의 traceId가 찍힌다 (REQ-NF-003 1).
  */
 @Component
 class TraceRecordInterceptor implements RecordInterceptor<Object, Object> {

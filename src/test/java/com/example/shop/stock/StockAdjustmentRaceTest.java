@@ -26,6 +26,11 @@ import static org.awaitility.Awaitility.await;
  * reserving in between (row inserted, Redis decremented, not committed yet) was not counted and Redis went negative.
  * The adjustment now locks reservations (FOR SHARE) and then the product (FOR UPDATE), the resync's lock order, and
  * moves Redis before it commits.
+ *
+ * 3단계 결함: 관리자 조정이 "선점 수량보다 낮을 수 없다"를 검사한 뒤 DB를 update했기 때문에, 그 사이에 선점한 주문(행
+ * insert, Redis 차감, 아직 커밋 전)이 반영되지 않아 Redis가 음수가 되었다.
+ * 이제 조정은 재동기화와 같은 락 순서로 선점 행(FOR SHARE), 그다음 상품(FOR UPDATE)을 잠그고, 커밋 전에 Redis를
+ * 움직인다.
  */
 class StockAdjustmentRaceTest extends IntegrationTestSupport {
 

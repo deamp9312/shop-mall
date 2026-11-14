@@ -12,10 +12,18 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    /** Escape character used by {@link ProductSearchCondition#likePattern()}. */
+    /**
+     * Escape character used by {@link ProductSearchCondition#likePattern()}.
+     *
+     * {@link ProductSearchCondition#likePattern()}이 쓰는 이스케이프 문자.
+     */
     char LIKE_ESCAPE = '!';
 
-    /** On-sale products filtered by category and a name substring (REQ-F-003, DB LIKE search). */
+    /**
+     * On-sale products filtered by category and a name substring (REQ-F-003, DB LIKE search).
+     *
+     * 카테고리와 이름 부분 문자열로 거른 판매 중 상품 (REQ-F-003, DB LIKE 검색).
+     */
     @EntityGraph(attributePaths = "category")
     @Query(value = """
             select p from Product p

@@ -41,6 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * REQ-F-014: 1) one order's published and consumed events in time order, 2) failure switch -> retries -> DLT ->
  * [재처리] handled once by the failed group only; REQ-IF-001 6) dead letter retry API, normal and error cases.
+ *
+ * REQ-F-014: 1) 주문 한 건의 발행·소비 이벤트가 시간순으로 보인다, 2) 장애 스위치 -> 재시도 -> DLT -> [재처리]는 실패한
+ * 그룹만 한 번 처리한다. REQ-IF-001 6) DLT 재처리 API의 정상·오류 경우.
  */
 class AdminEventTest extends IntegrationTestSupport {
 

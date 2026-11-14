@@ -16,7 +16,11 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
-/** One row per order status change; created only by {@link Order}. */
+/**
+ * One row per order status change; created only by {@link Order}.
+ *
+ * 주문 상태가 바뀔 때마다 한 행. {@link Order}만 만든다.
+ */
 @Entity
 @Table(name = "order_status_history")
 public class OrderStatusHistory {

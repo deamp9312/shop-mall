@@ -28,7 +28,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.Map;
 
-/** Admin product and stock management screens (REQ-F-013). ADMIN only, enforced by SecurityConfig. */
+/**
+ * Admin product and stock management screens (REQ-F-013). ADMIN only, enforced by SecurityConfig.
+ *
+ * 관리자 상품·재고 관리 화면 (REQ-F-013). ADMIN 전용이며 SecurityConfig가 강제한다.
+ */
 @Controller
 @RequestMapping("/admin")
 public class AdminProductController {

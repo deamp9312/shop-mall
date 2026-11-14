@@ -40,6 +40,10 @@ import static org.awaitility.Awaitility.await;
  * REQ-NF-002 verification 1) duplicate delivery handled once, 2) forced failure -> 4 attempts -> 1 DLT record and the
  * next record still handled, 3) non-retryable failures go to the DLT at once; DLT records are stored (4);
  * REQ-NF-003: the consumer MDC carries the traceId from the Kafka header.
+ *
+ * REQ-NF-002 검증 1) 중복 전달은 한 번만 처리, 2) 강제 실패 -> 4번 시도 -> DLT 레코드 1개, 다음 레코드는 여전히 처리,
+ * 3) 재시도 불가 실패는 바로 DLT로 가고, DLT 레코드는 저장된다(4).
+ * REQ-NF-003: 컨슈머 MDC에 Kafka 헤더의 traceId가 들어 있다.
  */
 class EventConsumptionTest extends IntegrationTestSupport {
 
@@ -165,7 +169,11 @@ class EventConsumptionTest extends IntegrationTestSupport {
         return KafkaTestClient.readAll(TEST_TOPIC + EventTopics.DLT_SUFFIX);
     }
 
-    /** A container built by the application's factory, so it gets the same error handler and interceptor. */
+    /**
+     * A container built by the application's factory, so it gets the same error handler and interceptor.
+     *
+     * 애플리케이션의 팩토리로 만든 컨테이너라서 같은 오류 핸들러와 인터셉터를 받는다.
+     */
     private ConcurrentMessageListenerContainer<String, String> testContainer(MessageListener<String, String> listener) {
         ConcurrentMessageListenerContainer<String, String> container = factory.createContainer(TEST_TOPIC);
         container.getContainerProperties().setGroupId(TEST_GROUP);

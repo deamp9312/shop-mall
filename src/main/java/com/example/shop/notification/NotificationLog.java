@@ -13,7 +13,11 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
-/** Payment result notice stored instead of sending mail or SMS (REQ-F-009 4), shown on the order detail page. */
+/**
+ * Payment result notice stored instead of sending mail or SMS (REQ-F-009 4), shown on the order detail page.
+ *
+ * 메일이나 SMS를 보내는 대신 저장하는 결제 결과 알림 (REQ-F-009 4). 주문 상세 화면에 보인다.
+ */
 @Entity
 @Table(name = "notification_logs")
 public class NotificationLog {

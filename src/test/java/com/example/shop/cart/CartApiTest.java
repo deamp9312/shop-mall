@@ -27,12 +27,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** REQ-F-005 and REQ-IF-001 1): Redis Hash cart through the REST API. */
+/**
+ * REQ-F-005 and REQ-IF-001 1): Redis Hash cart through the REST API.
+ *
+ * REQ-F-005와 REQ-IF-001 1): REST API로 다루는 Redis Hash 장바구니.
+ */
 class CartApiTest extends SeededIntegrationTestSupport {
 
     private static final long TOWEL = 1L;      // 12,900 won, stock 80
+    // 12,900원, 재고 80
     private static final long SOAP = 3L;       //  8,900 won, stock 100
+    // 8,900원, 재고 100
     private static final long SOLD_OUT = 10L;  // stock 0
+    // 재고 0
     private static final long STOPPED_PRODUCT_ID = 9_101L;
 
     @Autowired

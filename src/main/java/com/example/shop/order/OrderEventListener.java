@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 /**
  * Order module consumer (group shop-order). The history row of each change records the consumed event as its cause
  * (REQ-F-012 3).
+ *
+ * 주문 모듈 컨슈머 (그룹 shop-order). 변경마다 남기는 이력 행에 소비한 이벤트를 원인으로 기록한다 (REQ-F-012 3).
  */
 @Component
 class OrderEventListener {

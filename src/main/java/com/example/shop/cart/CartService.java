@@ -21,6 +21,9 @@ import java.util.Map;
 /**
  * Cart in the Redis Hash RedisKeys.cart(memberId) (field = productId, value = quantity), TTL 7 days renewed on every
  * change (REQ-F-005). The member id always comes from the logged-in principal, so a member only reaches their own cart.
+ *
+ * Redis Hash RedisKeys.cart(memberId)에 담는 장바구니 (field = productId, value = 수량). TTL 7일이며 변경할 때마다
+ * 갱신한다 (REQ-F-005). 회원 id는 항상 로그인한 principal에서 가져오므로 회원은 자기 장바구니에만 접근한다.
  */
 @Service
 public class CartService {
@@ -46,7 +49,11 @@ public class CartService {
         this.availableStock = availableStock;
     }
 
-    /** Adds to the existing quantity of the same product; checked against both limits atomically in Lua. */
+    /**
+     * Adds to the existing quantity of the same product; checked against both limits atomically in Lua.
+     *
+     * 같은 상품의 기존 수량에 더한다. 두 한도를 Lua에서 원자적으로 함께 검사한다.
+     */
     public void add(long memberId, long productId, int quantity) {
         if (!catalog.getProduct(productId).onSale()) {
             throw new ShopException(ErrorCode.PRODUCT_NOT_ON_SALE);
@@ -76,7 +83,11 @@ public class CartService {
         redis.expire(key, CART_TTL);
     }
 
-    /** REQ-F-005 4): after an order from the cart, only the ordered products leave the cart. */
+    /**
+     * REQ-F-005 4): after an order from the cart, only the ordered products leave the cart.
+     *
+     * REQ-F-005 4): 장바구니에서 주문한 뒤에는 주문한 상품만 장바구니에서 빠진다.
+     */
     public void removeAll(long memberId, Collection<Long> productIds) {
         if (productIds.isEmpty()) {
             return;

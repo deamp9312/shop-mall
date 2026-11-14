@@ -36,6 +36,10 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  * REQ-F-010: overdue PAYMENT_PENDING orders are cancelled with PAYMENT_TIMEOUT, stock comes back and the READY payment is
  * cancelled; concurrent runs (two instances) still publish one order.cancelled per order. The test profile runs the job
  * every second; a test moves an order's deadline into the past instead of waiting 15 minutes.
+ *
+ * REQ-F-010: 기한이 지난 PAYMENT_PENDING 주문은 PAYMENT_TIMEOUT으로 취소되고, 재고가 돌아오며, READY 결제가 취소된다.
+ * 동시 실행(인스턴스 두 개)이어도 주문마다 order.cancelled는 하나만 발행된다. test 프로필은 작업을 매초 실행하며,
+ * 테스트는 15분을 기다리는 대신 주문 기한을 과거로 옮긴다.
  */
 class PaymentTimeoutJobTest extends IntegrationTestSupport {
 

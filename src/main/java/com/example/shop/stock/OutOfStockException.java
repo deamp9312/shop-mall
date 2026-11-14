@@ -5,7 +5,11 @@ import com.example.shop.common.ShopException;
 
 import java.util.List;
 
-/** The Redis reservation found too little available stock for these products; nothing was decremented. */
+/**
+ * The Redis reservation found too little available stock for these products; nothing was decremented.
+ *
+ * Redis 선점에서 이 상품들의 가용 재고가 부족했다. 아무것도 차감하지 않았다.
+ */
 public class OutOfStockException extends ShopException {
 
     private final List<Long> productIds;

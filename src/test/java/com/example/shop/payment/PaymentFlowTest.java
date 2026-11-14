@@ -45,12 +45,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * REQ-F-008 (mock payment), REQ-F-009 (result consumers), REQ-F-011 (cancel and compensation), REQ-SE-002 2), 3), 4)
  * (approval idempotency) and REQ-IF-001 4), 5) (cancel and approve API, normal and error cases).
+ *
+ * REQ-F-008 (모의 결제), REQ-F-009 (결과 컨슈머), REQ-F-011 (취소와 보상), REQ-SE-002 2), 3), 4) (승인 멱등성),
+ * REQ-IF-001 4), 5) (취소·승인 API, 정상과 오류 경우).
  */
 class PaymentFlowTest extends IntegrationTestSupport {
 
     private static final long CATEGORY_ID = 9_480L;
     private static final long MUG = 9_481L;      // 10,000 won, stock 10
+    // 10,000원, 재고 10
     private static final long PLATE = 9_482L;    //  4,000 won, stock 10
+    // 4,000원, 재고 10
     private static final int INITIAL_STOCK = 10;
     private static final MemberPrincipal MEMBER =
             new MemberPrincipal(9_481L, "pay-test@shop.local", "결제자", MemberRole.USER, null);
@@ -170,6 +175,7 @@ class PaymentFlowTest extends IntegrationTestSupport {
                 KafkaTestClient.readByKey(EventTopics.PAYMENT_COMPLETED, String.valueOf(order.id())).size() == 1);
 
         // Second layer: the Redis key is gone, but the conditional UPDATE (READY only) still approves nothing twice.
+        // 두 번째 방어선: Redis 키가 사라져도 조건부 UPDATE(READY만)가 두 번 승인하지 않게 막는다.
         redis.delete(RedisKeys.idempotency(IdempotencyScope.PAYMENT, String.valueOf(order.id())));
         flow.approve(MEMBER, order.id(), "SUCCESS")
                 .andExpect(status().isOk())

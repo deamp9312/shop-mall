@@ -21,7 +21,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-/** REQ-IF-002 verification 1) six topics + DLTs with 3 partitions, 3) one order's events share a partition. */
+/**
+ * REQ-IF-002 verification 1) six topics + DLTs with 3 partitions, 3) one order's events share a partition.
+ *
+ * REQ-IF-002 검증 1) 토픽 6개 + DLT, 파티션 3개, 3) 한 주문의 이벤트는 같은 파티션을 쓴다.
+ */
 class KafkaTopicsTest extends IntegrationTestSupport {
 
     private static final long ORDER_A = 9_401L;

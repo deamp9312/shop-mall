@@ -29,6 +29,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * REQ-F-007: all-or-nothing Lua reservation, confirm on payment.completed, release on payment.failed and
  * order.cancelled (also after confirm, REQ-F-011 4). Payment events are published directly (payment module: step 4).
+ *
+ * REQ-F-007: 전부 아니면 전무인 Lua 선점, payment.completed에 확정, payment.failed와 order.cancelled에 해제 (확정
+ * 후에도, REQ-F-011 4). 결제 이벤트는 직접 발행한다 (결제 모듈: 4단계).
  */
 class StockReservationFlowTest extends IntegrationTestSupport {
 

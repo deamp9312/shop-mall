@@ -54,12 +54,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * REQ-F-006 (order + outbox + order.created), REQ-SE-002 (idempotency key, Redis + DB), REQ-F-005 4) (cart),
  * REQ-SE-001 2) (owner check), REQ-DA-002 verification 1) (Kafka down while ordering) and a small concurrency check
  * (stock 10, 30 concurrent orders -> exactly 10; the full REQ-NF-001 test is step 5).
+ *
+ * REQ-F-006 (주문 + 아웃박스 + order.created), REQ-SE-002 (멱등 키, Redis + DB), REQ-F-005 4) (장바구니), REQ-SE-001 2)
+ * (소유자 확인), REQ-DA-002 검증 1) (주문 중 Kafka 중단), 그리고 작은 동시성 확인 (재고 10, 동시 주문 30건 -> 정확히
+ * 10건. 전체 REQ-NF-001 테스트는 5단계).
  */
 class OrderPlacementTest extends IntegrationTestSupport {
 
     private static final long CATEGORY_ID = 9_450L;
     private static final long TOWEL = 9_451L;   // 12,900 won
+    // 12,900원
     private static final long SOAP = 9_452L;    //  8,900 won
+    // 8,900원
     private static final long CANDLE = 9_453L;
     private static final long MEMBER_ID = 9_451L;
     private static final long OTHER_MEMBER_ID = 9_452L;
@@ -281,6 +287,7 @@ class OrderPlacementTest extends IntegrationTestSupport {
             orderId = objectMapper.readTree(result.getResponse().getContentAsString()).get("orderId").asLong();
             long id = orderId;
             // Longer than the producer's delivery.timeout.ms (10 s): the relay's send fails at least once meanwhile.
+            // 프로듀서의 delivery.timeout.ms(10초)보다 길다. 그 사이 릴레이의 전송이 적어도 한 번 실패한다.
             await().during(Duration.ofSeconds(12)).atMost(Duration.ofSeconds(15))
                     .until(() -> "PENDING".equals(outboxStatus(id)));
         } finally {
@@ -291,6 +298,7 @@ class OrderPlacementTest extends IntegrationTestSupport {
         await().atMost(Duration.ofSeconds(90)).until(() -> "SENT".equals(outboxStatus(id)));
         assertThat(KafkaTestClient.readByKey(EventTopics.ORDER_CREATED, String.valueOf(orderId))).isNotEmpty();
         // An outage is not counted toward the 5 failures that end in FAILED.
+        // 장애는 FAILED로 끝나는 5번의 실패에 세지 않는다.
         assertThat(jdbc.queryForObject("select retry_count from outbox_events where message_key = ?", Integer.class,
                 String.valueOf(orderId))).isZero();
     }
@@ -316,7 +324,11 @@ class OrderPlacementTest extends IntegrationTestSupport {
         return "\"address\":{\"receiverName\":\"홍길동\",\"receiverPhone\":\"010-1234-5678\",\"line\":\"서울시 어딘가 1\"}";
     }
 
-    /** Starts all tasks at once; each result is the return value or the thrown exception. */
+    /**
+     * Starts all tasks at once; each result is the return value or the thrown exception.
+     *
+     * 모든 작업을 한꺼번에 시작한다. 각 결과는 반환값이거나 던져진 예외다.
+     */
     private static List<Object> runConcurrently(int count, IndexedTask task) throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(count);
         CountDownLatch start = new CountDownLatch(1);

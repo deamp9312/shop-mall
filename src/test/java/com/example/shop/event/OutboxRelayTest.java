@@ -20,7 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
-/** REQ-DA-002: outbox rows are sent with key and trace headers, give up after 5 failures, and SENT rows expire. */
+/**
+ * REQ-DA-002: outbox rows are sent with key and trace headers, give up after 5 failures, and SENT rows expire.
+ *
+ * REQ-DA-002: 아웃박스 행은 키와 trace 헤더를 달고 전송되며, 5번 실패하면 포기하고, SENT 행은 만료된다.
+ */
 class OutboxRelayTest extends IntegrationTestSupport {
 
     private static final long ORDER_ID = 9_411L;
@@ -70,6 +74,7 @@ class OutboxRelayTest extends IntegrationTestSupport {
     @Test
     void anEventKafkaRejectsBecomesFailedAfterFiveAttempts() {
         // An illegal topic name is a permanent error (InvalidTopicException), not a broker outage.
+        // 잘못된 토픽 이름은 브로커 장애가 아니라 영구 오류다 (InvalidTopicException).
         jdbc.update("insert into outbox_events (event_id, topic, message_key, payload, status, retry_count, created_at)"
                 + " values (?, 'shop invalid topic!', ?, '{\"traceId\": \"t\", \"eventType\": \"X\"}', 'PENDING', 0,"
                 + " now(6))", UUID.randomUUID().toString(), String.valueOf(REJECTED_ORDER_ID));

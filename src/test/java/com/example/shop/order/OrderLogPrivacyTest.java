@@ -29,6 +29,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 /**
  * REQ-SE-003 verification 2): the whole order scenario (order, payment, stock confirm, PAID, notification) logs the
  * order, but never the receiver's address, phone or name.
+ *
+ * REQ-SE-003 검증 2): 전체 주문 시나리오(주문, 결제, 재고 확정, PAID, 알림)가 주문은 로그에 남기지만 수령인의 주소,
+ * 전화번호, 이름은 절대 남기지 않는다.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class OrderLogPrivacyTest extends IntegrationTestSupport {

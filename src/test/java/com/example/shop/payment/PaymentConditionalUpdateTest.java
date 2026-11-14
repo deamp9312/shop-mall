@@ -20,6 +20,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * REQ-SE-002 4): the DB layer under the Redis key. An approval that read the payment as READY cannot overwrite a
  * cancellation committed in the meantime, because the UPDATE is conditional on the status it read.
+ *
+ * REQ-SE-002 4): Redis 키 아래의 DB 방어선. 결제를 READY로 읽은 승인은 그 사이 커밋된 취소를 덮어쓸 수 없다. UPDATE가
+ * 읽은 상태를 조건으로 걸기 때문이다.
  */
 class PaymentConditionalUpdateTest extends IntegrationTestSupport {
 

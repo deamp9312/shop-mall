@@ -12,14 +12,22 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** REQ-IF-002 verification 2): every event class serializes into the full envelope, without personal data. */
+/**
+ * REQ-IF-002 verification 2): every event class serializes into the full envelope, without personal data.
+ *
+ * REQ-IF-002 검증 2): 모든 이벤트 클래스가 개인정보 없이 완전한 envelope으로 직렬화된다.
+ */
 class EventEnvelopeContractTest {
 
     private static final List<String> ENVELOPE_FIELDS =
             List.of("eventId", "eventType", "version", "occurredAt", "aggregateId", "traceId", "payload");
     private static final LocalDateTime TIME = LocalDateTime.of(2026, 11, 5, 10, 0);
 
-    /** Same date handling as Spring Boot's ObjectMapper (ISO-8601 text, not numeric timestamps). */
+    /**
+     * Same date handling as Spring Boot's ObjectMapper (ISO-8601 text, not numeric timestamps).
+     *
+     * Spring Boot의 ObjectMapper와 같은 날짜 처리 (숫자 타임스탬프가 아닌 ISO-8601 문자열).
+     */
     private final ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
             .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
 

@@ -23,12 +23,23 @@ import java.util.List;
  * Two instances run it on the same schedule, so the run holds the Redis lock RedisKeys.lock(LOCK_NAME) (SET NX PX 50 s)
  * and the other instance skips. The lock is the first layer only: each order is cancelled with a status check and the
  * orders.version optimistic lock, so even an overlapping run cannot publish order.cancelled twice.
+ *
+ * 결제 기한이 지난 주문을 취소해서 (REQ-F-010), 방치된 결제 화면이 재고를 붙잡고 있지 않게 한다.
+ * 실행 간격은 shop.order.timeout-check-interval(1분)이고, 기한 자체는 shop.order.payment-timeout이다.
+ * <p>
+ * 두 인스턴스가 같은 일정으로 실행하므로, 실행하는 쪽이 Redis 락 RedisKeys.lock(LOCK_NAME)(SET NX PX 50초)을 잡고 다른
+ * 인스턴스는 건너뛴다. 락은 첫 번째 방어선일 뿐이다. 각 주문은 상태 검사와 orders.version 낙관적 락으로 취소하므로,
+ * 실행이 겹쳐도 order.cancelled를 두 번 발행할 수 없다.
  */
 @Component
 class PaymentTimeoutJob {
 
     static final String LOCK_NAME = "order-timeout";
-    /** Shorter than the 1 minute interval, longer than one batch takes. */
+    /**
+     * Shorter than the 1 minute interval, longer than one batch takes.
+     *
+     * 1분 간격보다 짧고, 배치 한 번이 걸리는 시간보다 길다.
+     */
     static final Duration LOCK_TTL = Duration.ofSeconds(50);
     static final int BATCH_SIZE = 100;
 
@@ -69,7 +80,11 @@ class PaymentTimeoutJob {
         return cancelled;
     }
 
-    /** Each cancellation starts its own flow, so it gets its own traceId (REQ-NF-003). */
+    /**
+     * Each cancellation starts its own flow, so it gets its own traceId (REQ-NF-003).
+     *
+     * 취소마다 자기 흐름을 시작하므로 자기 traceId를 받는다 (REQ-NF-003).
+     */
     private boolean cancelInOwnTrace(long orderId, LocalDateTime now) {
         MDC.put(MdcKeys.ORDER_ID, String.valueOf(orderId));
         try {

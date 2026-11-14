@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' - shop-mall'">shop-mall</title>
     <!-- REQ-SE-001 3): fetch requests copy this token into the header named below -->
+    <!-- REQ-SE-001 3): fetch 요청은 이 토큰을 아래 이름의 헤더에 복사한다 -->
     <th:block th:if="${currentMember != null}">
         <meta name="_csrf" th:content="${_csrf.token}">
         <meta name="_csrf_header" th:content="${_csrf.headerName}">

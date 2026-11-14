@@ -23,7 +23,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-/** REQ-F-004: product information is cached as JSON for 10 minutes; available stock is never cached. */
+/**
+ * REQ-F-004: product information is cached as JSON for 10 minutes; available stock is never cached.
+ *
+ * REQ-F-004: 상품 정보는 JSON으로 10분 동안 캐시되고, 가용 재고는 절대 캐시되지 않는다.
+ */
 class ProductDetailCacheTest extends SeededIntegrationTestSupport {
 
     private static final long PRODUCT_ID = 3L;
@@ -74,6 +78,7 @@ class ProductDetailCacheTest extends SeededIntegrationTestSupport {
     void expiredEntryIsReloadedWithOneQuery() throws Exception {
         mvc.perform(get("/products/" + PRODUCT_ID));
         redis.delete(RedisKeys.product(PRODUCT_ID)); // same effect as the TTL running out
+        // TTL이 다 된 것과 같은 효과
 
         long statements = statementsFor(() -> mvc.perform(get("/products/" + PRODUCT_ID)));
 
@@ -125,6 +130,9 @@ class ProductDetailCacheTest extends SeededIntegrationTestSupport {
     /**
      * Product rows loaded from the DB during the action. Counted per entity rather than with the global statement
      * count, because the outbox relay (REQ-DA-002) polls the DB in the background every 500 ms.
+     *
+     * 동작 중 DB에서 불러온 상품 행. 아웃박스 릴레이(REQ-DA-002)가 백그라운드에서 500ms마다 DB를 폴링하므로, 전체 쿼리
+     * 수가 아니라 엔티티별로 센다.
      */
     private long statementsFor(ThrowingAction action) throws Exception {
         statistics.clear();

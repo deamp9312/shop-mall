@@ -1,4 +1,5 @@
 /* Text color is yellow by the project owner's rule; a dark background keeps it readable. */
+/* 글자색은 프로젝트 소유자의 규칙에 따라 노란색이다. 어두운 배경으로 읽기 쉽게 한다. */
 :root {
     --text: #ffd400;
     --background: #1b1b1f;
@@ -181,6 +182,7 @@ tr.excluded {
 }
 
 /* REQ-F-008: fixed notice that the payment is a mock */
+/* REQ-F-008: 모의 결제임을 알리는 고정 안내문 */
 .mock-banner {
     position: sticky;
     top: 0;

@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-/** Turns errors of JSON controllers into {code, message} with the matching status (REQ-IF-001 7). */
+/**
+ * Turns errors of JSON controllers into {code, message} with the matching status (REQ-IF-001 7).
+ *
+ * JSON 컨트롤러의 오류를 그에 맞는 상태 코드와 {code, message}로 바꾼다 (REQ-IF-001 7).
+ */
 @RestControllerAdvice(basePackageClasses = ApiExceptionHandler.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class ApiExceptionHandler {

@@ -12,7 +12,11 @@ import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** REQ-F-001: the application starts on MySQL (Flyway + JPA validate), Redis and Kafka containers. */
+/**
+ * REQ-F-001: the application starts on MySQL (Flyway + JPA validate), Redis and Kafka containers.
+ *
+ * REQ-F-001: 애플리케이션이 MySQL(Flyway + JPA validate), Redis, Kafka 컨테이너 위에서 시작된다.
+ */
 class ApplicationIntegrationTest extends IntegrationTestSupport {
 
     @Autowired

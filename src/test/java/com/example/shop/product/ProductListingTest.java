@@ -13,7 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** REQ-F-003: listing results equal the same filter run directly on the DB; sold-out comes from Redis. */
+/**
+ * REQ-F-003: listing results equal the same filter run directly on the DB; sold-out comes from Redis.
+ *
+ * REQ-F-003: 목록 결과는 같은 필터를 DB에 직접 돌린 결과와 같다. 품절 여부는 Redis에서 온다.
+ */
 class ProductListingTest extends SeededIntegrationTestSupport {
 
     private static final long SOLD_OUT_PRODUCT_ID = 10L;

@@ -27,7 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** REQ-F-002 (sign-up, login, Redis session, logout) and REQ-SE-001 4) (5 failures lock 5 minutes). */
+/**
+ * REQ-F-002 (sign-up, login, Redis session, logout) and REQ-SE-001 4) (5 failures lock 5 minutes).
+ *
+ * REQ-F-002 (회원가입, 로그인, Redis 세션, 로그아웃)와 REQ-SE-001 4) (5번 실패하면 5분 잠금).
+ */
 class AuthenticationFlowTest extends SeededIntegrationTestSupport {
 
     private static final String NEW_MEMBER_EMAIL = "auth-test@shop.local";
@@ -67,9 +71,12 @@ class AuthenticationFlowTest extends SeededIntegrationTestSupport {
         assertThat(redis.hasKey(sessionKey)).isTrue();
         // TTL = 30 minutes. The slack absorbs a clock correction of the Docker VM between EXPIRE and TTL, which once
         // read 1870 s (step 4 handover); it is still far below anything a wrong timeout setting would produce.
+        // TTL = 30분. 여유분은 EXPIRE와 TTL 사이에 Docker VM 시계가 보정되는 경우를 흡수한다. 실제로 1870초가 읽힌 적이
+        // 있다 (4단계 인계). 그래도 잘못된 타임아웃 설정이 만들 값보다는 훨씬 작다.
         assertThat(redis.getExpire(sessionKey, TimeUnit.SECONDS)).isBetween(1L, 30L * 60 + SESSION_TTL_SLACK_SECONDS);
 
         // A new request carrying only the cookie is authenticated: the session is loaded from Redis.
+        // 쿠키만 가진 새 요청이 인증된다. 세션을 Redis에서 불러온다.
         mvc.perform(get("/cart").cookie(sessionCookie)).andExpect(status().isOk());
 
         mvc.perform(post("/logout").cookie(sessionCookie).with(csrf())).andExpect(redirectedUrl("/"));

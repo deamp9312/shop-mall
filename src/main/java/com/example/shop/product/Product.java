@@ -19,6 +19,9 @@ import java.time.LocalDateTime;
 /**
  * Product. {@code stock} is the source of truth for stock and is changed only by the stock module; the available
  * count lives in Redis (REQ-F-007). Product information is edited by the admin (REQ-F-013).
+ *
+ * 상품. {@code stock}은 재고의 정본이며 재고 모듈만 바꾼다. 가용 수량은 Redis에 있다 (REQ-F-007). 상품 정보는 관리자가
+ * 수정한다 (REQ-F-013).
  */
 @Entity
 @Table(name = "products")
@@ -61,7 +64,11 @@ public class Product {
     protected Product() {
     }
 
-    /** New products start with stock 0; stock is set afterwards through the stock adjustment (REQ-F-013 2). */
+    /**
+     * New products start with stock 0; stock is set afterwards through the stock adjustment (REQ-F-013 2).
+     *
+     * 새 상품은 재고 0으로 시작한다. 재고는 이후 재고 조정으로 설정한다 (REQ-F-013 2).
+     */
     public static Product create(Category category, ProductDetails details) {
         Product product = new Product();
         product.stock = 0;

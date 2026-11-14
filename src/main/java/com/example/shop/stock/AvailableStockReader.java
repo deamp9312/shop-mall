@@ -11,6 +11,9 @@ import java.util.Map;
 /**
  * Reads the Redis available-stock counters (REQ-F-003 4, REQ-F-004 2). Never cached. A missing key reads as 0, which
  * shows the product as sold out instead of overselling it.
+ *
+ * Redis 가용 재고 카운터를 읽는다 (REQ-F-003 4, REQ-F-004 2). 캐시하지 않는다. 키가 없으면 0으로 읽어서, 초과 판매 대신
+ * 품절로 보이게 한다.
  */
 @Component
 public class AvailableStockReader {

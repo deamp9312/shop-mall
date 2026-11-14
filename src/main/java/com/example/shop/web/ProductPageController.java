@@ -9,7 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-/** Product detail (REQ-F-004): product information from the cache, available stock from Redis every time. */
+/**
+ * Product detail (REQ-F-004): product information from the cache, available stock from Redis every time.
+ *
+ * 상품 상세 (REQ-F-004): 상품 정보는 캐시에서, 가용 재고는 매번 Redis에서 읽는다.
+ */
 @Controller
 public class ProductPageController {
 

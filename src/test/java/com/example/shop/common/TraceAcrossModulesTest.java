@@ -34,6 +34,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  * REQ-NF-003 verification 1): grepping the traceId of the order request finds log lines of the order, payment, stock
  * and notification modules from order placement to PAID, although the approval is a separate HTTP request and the
  * consumers run on Kafka listener threads.
+ *
+ * REQ-NF-003 검증 1): 주문 요청의 traceId로 grep하면 주문 생성부터 PAID까지 주문, 결제, 재고, 알림 모듈의 로그 줄이
+ * 나온다. 승인은 별도 HTTP 요청이고 컨슈머는 Kafka 리스너 스레드에서 실행되는데도 그렇다.
  */
 class TraceAcrossModulesTest extends IntegrationTestSupport {
 
@@ -104,7 +107,11 @@ class TraceAcrossModulesTest extends IntegrationTestSupport {
         return (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     }
 
-    /** Keeps traceId, module and message of every application log line; thread-safe for the listener threads. */
+    /**
+     * Keeps traceId, module and message of every application log line; thread-safe for the listener threads.
+     *
+     * 애플리케이션 로그 줄마다 traceId, 모듈, 메시지를 보관한다. 리스너 스레드에서도 안전하다.
+     */
     private static final class TraceCapture extends AppenderBase<ILoggingEvent> {
 
         private final Queue<CapturedLine> lines = new ConcurrentLinkedQueue<>();
@@ -114,6 +121,7 @@ class TraceAcrossModulesTest extends IntegrationTestSupport {
             String logger = event.getLoggerName();
             if (logger.startsWith(MODULE_PREFIX)) {
                 // The MDC must be read here, on the logging thread.
+                // MDC는 로깅 스레드인 여기서 읽어야 한다.
                 lines.add(new CapturedLine(event.getMDCPropertyMap().get(MdcKeys.TRACE_ID),
                         logger.substring(MODULE_PREFIX.length()).split("\\.")[0], event.getFormattedMessage()));
             }

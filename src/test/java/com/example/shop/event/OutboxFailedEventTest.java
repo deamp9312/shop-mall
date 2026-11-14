@@ -34,6 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Review finding Medium-3 (2026-11-06): a later event of an order must not overtake an earlier one that keeps failing
  * or has FAILED, and the admin can put a FAILED row back to PENDING (REQ-DA-002, REQ-F-014, ADMIN + CSRF).
+ *
+ * 리뷰 지적 Medium-3 (2026-11-06): 한 주문의 뒤 이벤트가 계속 실패 중이거나 FAILED인 앞 이벤트를 앞지르면 안 되고,
+ * 관리자는 FAILED 행을 PENDING으로 되돌릴 수 있다 (REQ-DA-002, REQ-F-014, ADMIN + CSRF).
  */
 class OutboxFailedEventTest extends IntegrationTestSupport {
 
@@ -73,6 +76,7 @@ class OutboxFailedEventTest extends IntegrationTestSupport {
     void laterEventOfTheSameOrderWaitsWhileAnEarlierOneFailsAndAfterItHasFailed() {
         transaction.executeWithoutResult(status -> {
             // An illegal topic name is a permanent error: the row is retried five times and then FAILED.
+            // 잘못된 토픽 이름은 영구 오류다. 행은 다섯 번 재시도된 뒤 FAILED가 된다.
             insertPending(UUID.randomUUID().toString(), "shop invalid topic!", FAILING_ORDER_ID);
             outbox.record(new PaymentCancelRequestedEvent(FAILING_ORDER_ID, "test"));
         });

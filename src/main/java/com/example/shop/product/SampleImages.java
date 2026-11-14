@@ -10,7 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-/** Sample image files under static/images/products; image upload is out of scope (REQ-F-013). */
+/**
+ * Sample image files under static/images/products; image upload is out of scope (REQ-F-013).
+ *
+ * static/images/products 아래의 샘플 이미지 파일. 이미지 업로드는 범위 밖이다 (REQ-F-013).
+ */
 @Component
 public class SampleImages {
 

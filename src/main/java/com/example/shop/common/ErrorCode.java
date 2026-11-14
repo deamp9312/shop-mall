@@ -2,7 +2,11 @@ package com.example.shop.common;
 
 import org.springframework.http.HttpStatus;
 
-/** Error codes of the common {code, message} response (REQ-IF-001 7). */
+/**
+ * Error codes of the common {code, message} response (REQ-IF-001 7).
+ *
+ * 공통 {code, message} 응답의 오류 코드 (REQ-IF-001 7).
+ */
 public enum ErrorCode {
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     CART_QUANTITY_LIMIT(HttpStatus.BAD_REQUEST, "상품 1개당 최대 수량을 넘었습니다."),

@@ -12,6 +12,9 @@ import java.util.List;
 /**
  * Logged-in member kept in the Redis session (JDK-serialized by Spring Session). The password hash is erased after
  * authentication so it never reaches Redis.
+ *
+ * Redis 세션에 보관되는 로그인 회원 (Spring Session이 JDK 직렬화). 비밀번호 해시는 인증 후 지우므로 Redis에 들어가지
+ * 않는다.
  */
 public class MemberPrincipal implements UserDetails, CredentialsContainer {
 

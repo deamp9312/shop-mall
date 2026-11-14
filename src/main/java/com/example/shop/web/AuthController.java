@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-/** Login page and sign-up (REQ-F-002). The login POST itself is handled by Spring Security. */
+/**
+ * Login page and sign-up (REQ-F-002). The login POST itself is handled by Spring Security.
+ *
+ * 로그인 화면과 회원가입 (REQ-F-002). 로그인 POST 자체는 Spring Security가 처리한다.
+ */
 @Controller
 public class AuthController {
 

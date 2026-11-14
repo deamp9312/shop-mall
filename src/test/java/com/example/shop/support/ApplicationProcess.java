@@ -21,6 +21,10 @@ import static org.awaitility.Awaitility.await;
  * The application started as a separate JVM (test profile, this test run's classpath), so a test can kill it the way
  * an operating system or an operator does: SIGKILL, no shutdown hooks, no graceful stop of the Kafka listeners.
  * Output goes to target/app-process/{name}.log.
+ *
+ * 별도 JVM으로 실행한 애플리케이션 (test 프로필, 이번 테스트 실행의 클래스패스). 그래서 테스트가 운영체제나 운영자처럼
+ * SIGKILL로, 종료 훅도 Kafka 리스너의 정상 종료도 없이 죽일 수 있다.
+ * 출력은 target/app-process/{name}.log로 간다.
  */
 public final class ApplicationProcess {
 
@@ -37,7 +41,11 @@ public final class ApplicationProcess {
         this.port = port;
     }
 
-    /** Starts the application with the given properties and waits until /actuator/health answers UP. */
+    /**
+     * Starts the application with the given properties and waits until /actuator/health answers UP.
+     *
+     * 주어진 프로퍼티로 애플리케이션을 시작하고 /actuator/health가 UP을 응답할 때까지 기다린다.
+     */
     public static ApplicationProcess start(String name, Map<String, String> properties) throws IOException {
         int port = freePort();
         List<String> command = new ArrayList<>(List.of(javaExecutable(), "-cp", System.getProperty("java.class.path"),
@@ -53,7 +61,11 @@ public final class ApplicationProcess {
         return application;
     }
 
-    /** SIGKILL and wait for the process to be gone. */
+    /**
+     * SIGKILL and wait for the process to be gone.
+     *
+     * SIGKILL을 보내고 프로세스가 사라질 때까지 기다린다.
+     */
     public void kill() throws InterruptedException {
         process.destroyForcibly();
         process.waitFor();

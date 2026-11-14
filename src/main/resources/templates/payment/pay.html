@@ -4,6 +4,7 @@
 <body>
 <header th:replace="~{fragments/layout :: header}"></header>
 <!-- REQ-F-008: no real PG and no card or account number field -->
+<!-- REQ-F-008: 실제 PG도, 카드·계좌 번호 입력란도 없다 -->
 <p class="mock-banner">포트폴리오용 모의 결제 — 실제 결제되지 않음</p>
 <main class="content narrow" data-payment
       th:attr="data-order-id=${order.id},data-expires-at=${expiresAtEpochMillis},data-payable=${payable},data-payment-status=${payment == null ? '' : payment.status()}">

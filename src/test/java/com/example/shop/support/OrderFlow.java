@@ -26,11 +26,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Drives the order -> mock payment -> result flow through the HTTP API on the empty-schema context and reads the
  * resulting rows. {@link #deleteOrdersOf} removes everything the flow wrote for the given members; call it before
  * {@link TestProducts#deleteAll()}.
+ *
+ * 빈 스키마 컨텍스트에서 HTTP API로 주문 -> 모의 결제 -> 결과 흐름을 진행하고 결과 행을 읽는다. {@link
+ * #deleteOrdersOf}는 주어진 회원에 대해 이 흐름이 쓴 모든 것을 지운다. {@link TestProducts#deleteAll()}보다 먼저
+ * 호출한다.
  */
 public final class OrderFlow {
 
     public static final Duration ASYNC_TIMEOUT = Duration.ofSeconds(60);
-    /** Shipping info every order of this flow sends; personal data that must never reach a log (REQ-SE-003 3). */
+    /**
+     * Shipping info every order of this flow sends; personal data that must never reach a log (REQ-SE-003 3).
+     *
+     * 이 흐름의 모든 주문이 보내는 배송 정보. 로그에 절대 남으면 안 되는 개인정보다 (REQ-SE-003 3).
+     */
     public static final String RECEIVER_NAME = "홍길동";
     public static final String RECEIVER_PHONE = "010-1234-5678";
     public static final String ADDRESS_LINE = "서울시 어딘가 1";
@@ -45,13 +53,21 @@ public final class OrderFlow {
         this.objectMapper = objectMapper;
     }
 
-    /** POST /api/orders; the traceId is the X-Trace-Id of that request. */
+    /**
+     * POST /api/orders; the traceId is the X-Trace-Id of that request.
+     *
+     * POST /api/orders. traceId는 그 요청의 X-Trace-Id다.
+     */
     public PlacedOrder place(MemberPrincipal member, Map<Long, Integer> quantities) throws Exception {
         MvcResult result = attempt(member, quantities).andExpect(status().isOk()).andReturn();
         return placedOrder(result);
     }
 
-    /** POST /api/orders without expecting success, for tests where some orders must be refused. */
+    /**
+     * POST /api/orders without expecting success, for tests where some orders must be refused.
+     *
+     * 성공을 기대하지 않는 POST /api/orders. 일부 주문이 거절되어야 하는 테스트용.
+     */
     public ResultActions attempt(MemberPrincipal member, Map<Long, Integer> quantities) throws Exception {
         String items = quantities.entrySet().stream()
                 .map(line -> "{\"productId\":" + line.getKey() + ",\"qty\":" + line.getValue() + "}")
@@ -69,7 +85,11 @@ public final class OrderFlow {
         return new PlacedOrder(body.get("orderId").asLong(), result.getResponse().getHeader(TraceIdFilter.TRACE_ID_HEADER));
     }
 
-    /** Places the order and waits until the payment module has created the READY payment from order.created. */
+    /**
+     * Places the order and waits until the payment module has created the READY payment from order.created.
+     *
+     * 주문하고, 결제 모듈이 order.created로 READY 결제를 만들 때까지 기다린다.
+     */
     public PlacedOrder placeAndAwaitPayment(MemberPrincipal member, Map<Long, Integer> quantities) throws Exception {
         PlacedOrder order = place(member, quantities);
         awaitPaymentStatus(order.id(), "READY");

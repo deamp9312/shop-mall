@@ -21,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * REQ-DA-003: with the seed location enabled (as the local profile does), a fresh database gets 20 products and
  * startup writes 20 Redis stock keys equal to the DB stock. The seeded context is isolated from tests that run
  * without seed data (see SeededIntegrationTestSupport).
+ *
+ * REQ-DA-003: 시드 위치를 켜면(local 프로필처럼) 새 DB에 상품 20개가 들어가고, 시작할 때 DB 재고와 같은 Redis 재고 키
+ * 20개가 써진다. 시드가 있는 컨텍스트는 시드 없이 도는 테스트와 분리된다 (SeededIntegrationTestSupport 참고).
  */
 class SeedDataIntegrationTest extends SeededIntegrationTestSupport {
 

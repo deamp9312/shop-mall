@@ -10,7 +10,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-/** Payment module consumer (group shop-payment). */
+/**
+ * Payment module consumer (group shop-payment).
+ *
+ * 결제 모듈 컨슈머 (그룹 shop-payment).
+ */
 @Component
 class PaymentEventListener {
 

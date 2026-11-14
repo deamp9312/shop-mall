@@ -8,7 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** REQ-F-014 3): the switch fails the next N events on every delivery attempt, then lets their redelivery pass. */
+/**
+ * REQ-F-014 3): the switch fails the next N events on every delivery attempt, then lets their redelivery pass.
+ *
+ * REQ-F-014 3): 스위치는 다음 N개의 이벤트를 매 전달 시도마다 실패시키고, 이후 재전달은 통과시킨다.
+ */
 class ConsumerFailureSwitchTest {
 
     @Test

@@ -10,7 +10,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-/** Stock module consumer (group shop-stock): confirm on payment success, release on payment failure or cancel. */
+/**
+ * Stock module consumer (group shop-stock): confirm on payment success, release on payment failure or cancel.
+ *
+ * 재고 모듈 컨슈머 (그룹 shop-stock): 결제 성공 시 확정, 결제 실패나 취소 시 해제.
+ */
 @Component
 class StockEventListener {
 

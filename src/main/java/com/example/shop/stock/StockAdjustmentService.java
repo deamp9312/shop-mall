@@ -18,6 +18,13 @@ import java.util.Map;
  * product row is locked, and Redis moves before the commit. An order that has reserved but not committed makes the
  * adjustment wait and is then counted; an order that starts later waits for the adjustment. So the check "not below
  * the reserved quantity" still holds when the DB is updated.
+ *
+ * 관리자 재고 조정 (REQ-F-013 2). DB 재고를 새 값으로 바꾸고 Redis 카운터는 같은 차이만큼 INCRBY로 움직인다. 덮어쓰지
+ * 않고 차이만 반영하므로 동시 주문이 만든 선점이 유지된다.
+ * <p>
+ * 재동기화({@link AvailableStockSynchronizer})와 규칙이 같다. 선점 행을 먼저 FOR SHARE로 읽고, 그다음 상품 행을 잠그고,
+ * 커밋 전에 Redis를 움직인다. 선점했지만 아직 커밋하지 않은 주문이 있으면 조정이 기다렸다가 그 주문을 반영하고, 나중에
+ * 시작한 주문은 조정을 기다린다. 그래서 DB를 update할 때도 "선점 수량보다 낮을 수 없다"는 검사가 유효하다.
  */
 @Service
 public class StockAdjustmentService {
@@ -37,7 +44,11 @@ public class StockAdjustmentService {
         this.transaction = transaction;
     }
 
-    /** Runs under the resync lock as well, so a full resync never overwrites the counter halfway through. */
+    /**
+     * Runs under the resync lock as well, so a full resync never overwrites the counter halfway through.
+     *
+     * 재동기화 락 안에서도 실행되므로, 전체 재동기화가 카운터를 중간에 덮어쓰는 일이 없다.
+     */
     public void adjust(long productId, int newStock) {
         lock.runExclusively(AvailableStockSynchronizer.LOCK_NAME, AvailableStockSynchronizer.LOCK_TTL,
                 ErrorCode.STOCK_SYNC_IN_PROGRESS, () -> transaction.execute(status -> adjustLocked(productId, newStock)));

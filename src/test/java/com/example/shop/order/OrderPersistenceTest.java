@@ -11,7 +11,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** REQ-DA-001: each status change is stored as one order_status_history row together with the order. */
+/**
+ * REQ-DA-001: each status change is stored as one order_status_history row together with the order.
+ *
+ * REQ-DA-001: 상태 변경마다 order_status_history 행 하나가 주문과 함께 저장된다.
+ */
 class OrderPersistenceTest extends IntegrationTestSupport {
 
     @Autowired

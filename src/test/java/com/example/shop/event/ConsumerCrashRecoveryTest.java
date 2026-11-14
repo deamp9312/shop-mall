@@ -30,6 +30,13 @@ import static org.awaitility.Awaitility.await;
  * The consumer is held in place by a row lock this test takes on the product, the row it updates last. The
  * application runs as separate processes on a broker and a database of their own, so its consumer groups do not share
  * partitions with the in-JVM test context.
+ *
+ * REQ-NF-002 검증 3): 재고 컨슈머가 payment.completed를 처리하는 도중(processed_events insert, 선점 확정, 커밋 전)
+ * 애플리케이션을 강제 종료(SIGKILL)한다. 재시작하면 레코드가 다시 전달되고(오프셋이 커밋되지 않았으므로) DB 재고는
+ * 정확히 한 번 줄어든다.
+ * <p>
+ * 컨슈머는 이 테스트가 상품(컨슈머가 마지막에 update하는 행)에 거는 행 락으로 붙잡아 둔다. 애플리케이션은 자기 전용
+ * 브로커와 DB를 쓰는 별도 프로세스로 실행되므로, 그 컨슈머 그룹이 JVM 안의 테스트 컨텍스트와 파티션을 나눠 갖지 않는다.
  */
 class ConsumerCrashRecoveryTest {
 
@@ -93,6 +100,9 @@ class ConsumerCrashRecoveryTest {
     /**
      * A dead member keeps its partitions until its session times out; 6 s (the broker minimum) instead of 45 s lets
      * the restarted application take over quickly.
+     *
+     * 죽은 멤버는 세션이 만료될 때까지 파티션을 붙잡고 있다. 45초 대신 6초(브로커 최솟값)로 두어 재시작한
+     * 애플리케이션이 빨리 넘겨받게 한다.
      */
     private static Map<String, String> applicationProperties() {
         Map<String, String> properties = new HashMap<>(TestInfrastructure.connectionProperties(DATABASE,
@@ -102,7 +112,11 @@ class ConsumerCrashRecoveryTest {
         return properties;
     }
 
-    /** An order waiting for payment with its stock reserved, as OrderService leaves it. */
+    /**
+     * An order waiting for payment with its stock reserved, as OrderService leaves it.
+     *
+     * OrderService가 남기는 상태 그대로, 재고를 선점하고 결제를 기다리는 주문.
+     */
     private static long insertReservedOrder() {
         jdbc.update("insert into categories (id, name) values (?, 'crash-test')", CATEGORY_ID);
         jdbc.update("insert into products (id, category_id, name, description, price, stock, image_url, created_at,"
@@ -127,6 +141,7 @@ class ConsumerCrashRecoveryTest {
             select.setLong(1, PRODUCT);
             try (ResultSet ignored = select.executeQuery()) {
                 // the row lock is held until rollback
+                // 행 락은 롤백할 때까지 유지된다
             }
         }
     }

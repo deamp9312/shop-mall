@@ -26,6 +26,9 @@ import java.util.List;
 /**
  * Order aggregate. Status changes only through the methods below; each one checks the transition table and appends
  * exactly one order_status_history row (REQ-DA-001).
+ *
+ * 주문 애그리거트. 상태는 아래 메서드로만 바뀐다. 각 메서드는 전이표를 검사하고 order_status_history 행을 정확히 하나
+ * 추가한다 (REQ-DA-001).
  */
 @Entity
 @Table(name = "orders")
@@ -38,7 +41,11 @@ public class Order {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    /** Idempotency-Key of the request that created the order; unique per member (REQ-SE-002, second layer). */
+    /**
+     * Idempotency-Key of the request that created the order; unique per member (REQ-SE-002, second layer).
+     *
+     * 주문을 만든 요청의 Idempotency-Key. 회원별로 유일하다 (REQ-SE-002, 두 번째 방어선).
+     */
     @Column(name = "idempotency_key", length = 64)
     private String idempotencyKey;
 
@@ -74,7 +81,11 @@ public class Order {
     @Column(nullable = false)
     private long version;
 
-    /** Batch fetch keeps the order list page (10 orders, REQ-F-012 1) at one items query instead of ten. */
+    /**
+     * Batch fetch keeps the order list page (10 orders, REQ-F-012 1) at one items query instead of ten.
+     *
+     * 배치 fetch로 주문 목록 화면(주문 10건, REQ-F-012 1)의 상품 조회를 10번이 아닌 1번으로 줄인다.
+     */
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     @BatchSize(size = 10)
     private List<OrderItem> items = new ArrayList<>();
@@ -86,7 +97,11 @@ public class Order {
     protected Order() {
     }
 
-    /** Creates a PAYMENT_PENDING order whose total is calculated from the lines, never taken from the client. */
+    /**
+     * Creates a PAYMENT_PENDING order whose total is calculated from the lines, never taken from the client.
+     *
+     * PAYMENT_PENDING 주문을 만든다. 합계는 주문 줄로 계산하며 클라이언트 값을 받지 않는다.
+     */
     public static Order place(Long memberId, String idempotencyKey, ShippingInfo shipping, List<OrderLine> lines,
                               LocalDateTime paymentExpiresAt) {
         if (lines.isEmpty()) {
@@ -123,7 +138,11 @@ public class Order {
         this.cancelReason = reason;
     }
 
-    /** REQ-F-011 1): PAYMENT_PENDING and PAID orders can be cancelled. */
+    /**
+     * REQ-F-011 1): PAYMENT_PENDING and PAID orders can be cancelled.
+     *
+     * REQ-F-011 1): PAYMENT_PENDING과 PAID 주문은 취소할 수 있다.
+     */
     public boolean isCancellable() {
         return status.canTransitionTo(OrderStatus.CANCELLED);
     }
@@ -132,7 +151,11 @@ public class Order {
         return status == OrderStatus.CANCELLED;
     }
 
-    /** REQ-F-010 1): still waiting for payment when the deadline has passed. */
+    /**
+     * REQ-F-010 1): still waiting for payment when the deadline has passed.
+     *
+     * REQ-F-010 1): 기한이 지났는데 아직 결제를 기다리는 상태.
+     */
     public boolean isPaymentOverdueAt(LocalDateTime now) {
         return status == OrderStatus.PAYMENT_PENDING && !now.isBefore(paymentExpiresAt);
     }

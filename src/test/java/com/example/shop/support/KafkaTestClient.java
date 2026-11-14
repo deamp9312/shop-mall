@@ -25,7 +25,11 @@ import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
 
-/** Raw Kafka access for tests against the broker of {@link IntegrationTestSupport}: send, read a topic, await lag 0. */
+/**
+ * Raw Kafka access for tests against the broker of {@link IntegrationTestSupport}: send, read a topic, await lag 0.
+ *
+ * {@link IntegrationTestSupport}의 브로커에 대한 테스트용 Kafka 직접 접근: 전송, 토픽 읽기, lag 0 대기.
+ */
 public final class KafkaTestClient {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(60);
@@ -37,7 +41,11 @@ public final class KafkaTestClient {
         send(TestInfrastructure.kafkaBootstrapServers(), topic, key, value, headers);
     }
 
-    /** Sends to another broker than the one of {@link IntegrationTestSupport}. */
+    /**
+     * Sends to another broker than the one of {@link IntegrationTestSupport}.
+     *
+     * {@link IntegrationTestSupport}가 아닌 다른 브로커로 보낸다.
+     */
     public static void send(String bootstrapServers, String topic, String key, String value,
                             Map<String, String> headers) {
         try (KafkaProducer<String, String> producer = new KafkaProducer<>(Map.of(
@@ -56,7 +64,11 @@ public final class KafkaTestClient {
         }
     }
 
-    /** Every record currently in the topic, read without a consumer group. */
+    /**
+     * Every record currently in the topic, read without a consumer group.
+     *
+     * 지금 토픽에 있는 모든 레코드. 컨슈머 그룹 없이 읽는다.
+     */
     public static List<ConsumerRecord<String, String>> readAll(String topic) {
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, TestInfrastructure.kafkaBootstrapServers(),
@@ -84,7 +96,11 @@ public final class KafkaTestClient {
         return readAll(topic).stream().filter(record -> key.equals(record.key())).toList();
     }
 
-    /** Waits until the group has committed past every record of the topic, i.e. it has handled all of them. */
+    /**
+     * Waits until the group has committed past every record of the topic, i.e. it has handled all of them.
+     *
+     * 그룹이 토픽의 모든 레코드 뒤까지 커밋할 때까지, 즉 모두 처리할 때까지 기다린다.
+     */
     public static void awaitConsumed(String group, String topic) {
         try (AdminClient admin = AdminClient.create(Map.of(
                 AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, TestInfrastructure.kafkaBootstrapServers()))) {

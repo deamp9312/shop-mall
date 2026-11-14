@@ -1,4 +1,5 @@
 # Common settings. Secrets are environment variables only (REQ-SE-003, see .env.example).
+# 공통 설정. 비밀값은 환경 변수로만 받는다 (REQ-SE-003, .env.example 참고).
 spring:
   application:
     name: shop-mall
@@ -26,42 +27,54 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     # REQ-IF-002 / REQ-NF-002 5): no lost or duplicated writes from producer retries; exactly-once is out of scope
+    # REQ-IF-002 / REQ-NF-002 5): 프로듀서 재시도로 쓰기가 유실되거나 중복되지 않게 한다. exactly-once는 범위 밖이다
     producer:
       acks: all
       properties:
         enable.idempotence: true
         # A send gives up within 10 s, so the outbox relay (event/OutboxRelay) never waits minutes during an outage
+        # 전송은 10초 안에 포기하므로, 장애 중에도 아웃박스 릴레이(event/OutboxRelay)가 몇 분씩 기다리지 않는다
         max.block.ms: 10000
         request.timeout.ms: 5000
         delivery.timeout.ms: 10000
     consumer:
       # A new consumer group starts from the oldest record, so events published before it joined are not skipped
+      # 새 컨슈머 그룹은 가장 오래된 레코드부터 읽으므로, 그룹이 생기기 전에 발행된 이벤트도 건너뛰지 않는다
       auto-offset-reset: earliest
     listener:
       # REQ-NF-002 1): commit the offset after each record (the handler has already committed its DB transaction)
+      # REQ-NF-002 1): 레코드마다 오프셋을 커밋한다 (핸들러는 이미 DB 트랜잭션을 커밋한 상태다)
       ack-mode: record
   task:
     scheduling:
       # OutboxRelay, PaymentTimeoutJob and the delayed mock-PG answer share the scheduler. With one thread a relay
       # blocked by a Kafka outage (up to max.block.ms per send) would also hold back timeouts and delayed approvals.
+      # OutboxRelay, PaymentTimeoutJob, 모의 PG 지연 응답이 스케줄러를 함께 쓴다. 스레드가 하나면 Kafka 장애로 막힌
+      # 릴레이(전송마다 최대 max.block.ms)가 시간 초과 처리와 지연 승인까지 붙잡게 된다.
       pool:
         size: 3
   cache:
     # REQ-F-004: only the product cache exists; its TTL and JSON serializer are set in ProductCacheConfig
+    # REQ-F-004: 상품 캐시만 있다. TTL과 JSON 직렬화 설정은 ProductCacheConfig에 있다
     cache-names: product
 
 shop:
   order:
     # REQ-F-006 2), REQ-F-010 4): payment deadline = order time + 15 minutes. SHOP_PAYMENT_TIMEOUT=1m shortens it for a
     # local demo of the automatic cancellation.
+    # REQ-F-006 2), REQ-F-010 4): 결제 기한 = 주문 시각 + 15분. SHOP_PAYMENT_TIMEOUT=1m로 줄이면
+    # 로컬에서 자동 취소를 시연할 수 있다.
     payment-timeout: ${SHOP_PAYMENT_TIMEOUT:15m}
     # REQ-F-010 1): how often PaymentTimeoutJob looks for overdue orders (ISO-8601 duration)
+    # REQ-F-010 1): PaymentTimeoutJob이 기한 지난 주문을 찾는 주기 (ISO-8601 기간)
     timeout-check-interval: PT1M
   payment:
     # REQ-F-008 2): how late the mock PG answers for [응답 지연]
+    # REQ-F-008 2): 모의 PG가 [응답 지연]에 얼마나 늦게 답하는지
     mock-delay: 10s
   demo:
     # REQ-F-014 3): the consumer failure switch of the admin event screen. Enabled in the local profile only.
+    # REQ-F-014 3): 관리자 이벤트 화면의 컨슈머 장애 스위치. local 프로필에서만 켠다.
     failure-switch-enabled: false
 
 server:
@@ -81,4 +94,5 @@ management:
 logging:
   pattern:
     # REQ-NF-003: time, level, traceId, orderId, module(logger), message
+    # REQ-NF-003: 시각, 레벨, traceId, orderId, 모듈(logger), 메시지
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [traceId=%X{traceId:--}] [orderId=%X{orderId:--}] [%thread] %logger{40} - %msg%n"
