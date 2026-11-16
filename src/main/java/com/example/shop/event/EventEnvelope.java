@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * JSON envelope of every Kafka message (REQ-IF-002 3). occurredAt is an ISO-8601 instant; aggregateId is the orderId.
+ * 모든 Kafka 메시지의 JSON envelope이다 (REQ-IF-002 3). occurredAt은 ISO-8601 instant이고 aggregateId는 orderId이다.
  */
 public record EventEnvelope<P>(String eventId, String eventType, int version,
                                @JsonFormat(shape = JsonFormat.Shape.STRING) Instant occurredAt, Long aggregateId,

@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 /**
- * Idempotent consumption shared by every listener (REQ-NF-002 1): the business handler and the
- * processed_events(consumer_group, event_id) row commit in one transaction. A redelivered event finds its row and is
- * skipped; a handler failure rolls the row back, so the retry handles the event again.
+ * 모든 listener가 공유하는 멱등 소비 처리이다 (REQ-NF-002 1). 비즈니스 handler와
+ * processed_events(consumer_group, event_id) 행은 한 트랜잭션으로 commit된다. 재전달된 이벤트는 기존 행을 발견해
+ * 건너뛰고, handler가 실패하면 행도 롤백되므로 재시도 시 이벤트를 다시 처리한다.
  */
 @Component
 public class IdempotentEventProcessor {
@@ -54,8 +54,8 @@ public class IdempotentEventProcessor {
     }
 
     /**
-     * Inserting first makes a concurrent duplicate wait on the primary key and then fail, instead of both passing a
-     * "not yet processed" check. MySQL keeps the transaction usable after a duplicate-key error.
+     * 먼저 insert하므로 동시에 들어온 중복은 둘 다 "아직 처리 안 됨" 확인을 통과하는 대신 primary key에서 대기한 뒤
+     * 실패한다. MySQL은 duplicate-key 오류 후에도 트랜잭션을 계속 사용할 수 있게 유지한다.
      */
     private boolean markProcessed(String consumerGroup, String eventId) {
         try {

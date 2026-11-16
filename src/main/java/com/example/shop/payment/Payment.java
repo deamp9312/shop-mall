@@ -18,12 +18,12 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 /**
- * Mock payment of one order. Status changes only through the methods below (REQ-DA-001).
+ * 주문 하나에 대한 mock 결제. 상태는 아래 메서드로만 바뀐다 (REQ-DA-001).
  * <p>
- * Optimistic locking on the dirty columns makes Hibernate write every change as a conditional UPDATE: approving issues
- * {@code update payments set status='APPROVED', ... where id=? and status='READY'}. If a concurrent approval or
- * cancellation moved the row first, 0 rows match and the transaction fails instead of approving twice
- * (REQ-SE-002 4), the DB layer under the Redis idempotency key).
+ * 변경된(dirty) 컬럼 기준 낙관적 락 때문에 Hibernate는 모든 변경을 조건부 UPDATE로 실행한다. 승인 시에는
+ * {@code update payments set status='APPROVED', ... where id=? and status='READY'}를 실행한다. 동시에 들어온 승인이나
+ * 취소가 먼저 행을 바꿨다면 일치하는 행이 0건이 되어, 두 번 승인하는 대신 트랜잭션이 실패한다
+ * (REQ-SE-002 4), Redis 멱등 키 아래의 DB 계층).
  */
 @Entity
 @Table(name = "payments")
@@ -51,7 +51,7 @@ public class Payment {
     @Column(length = 20)
     private PaymentMethod method;
 
-    /** traceId of the order flow; the approval continues it (REQ-NF-003). */
+    /** 주문 흐름의 traceId. 승인은 이 traceId를 이어서 쓴다 (REQ-NF-003). */
     @Column(name = "trace_id", length = 64)
     private String traceId;
 
@@ -88,7 +88,7 @@ public class Payment {
         return payment;
     }
 
-    /** @param approvedAt approval time reported by the mock PG */
+    /** @param approvedAt mock PG가 알려 준 승인 시각 */
     public void approve(PaymentMethod method, LocalDateTime approvedAt) {
         changeStatus(PaymentStatus.APPROVED);
         this.method = method;
@@ -105,7 +105,7 @@ public class Payment {
         this.cancelledAt = updatedAt;
     }
 
-    /** The mock PG accepts an approval only before the order's payment deadline (REQ-F-008). */
+    /** mock PG는 주문의 결제 기한 전에만 승인을 받아들인다 (REQ-F-008). */
     public boolean isExpiredAt(LocalDateTime now) {
         return !now.isBefore(expiresAt);
     }

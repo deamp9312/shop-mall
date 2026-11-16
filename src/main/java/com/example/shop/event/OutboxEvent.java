@@ -14,8 +14,8 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 /**
- * One event written in the same transaction as the domain change (transactional outbox, REQ-DA-002) and sent to Kafka
- * later by {@link OutboxRelay}. payload holds the whole JSON envelope.
+ * 도메인 변경과 같은 트랜잭션에서 기록되고 나중에 {@link OutboxRelay}가 Kafka로 발행하는 이벤트 하나이다
+ * (transactional outbox, REQ-DA-002). payload에는 JSON envelope 전체가 들어 있다.
  */
 @Entity
 @Table(name = "outbox_events")
@@ -70,14 +70,14 @@ public class OutboxEvent {
         sentAt = LocalDateTime.now();
     }
 
-    /** Sends the row again on the next poll (admin retry of a dead letter, REQ-F-014 2). */
+    /** 다음 poll에서 이 행을 다시 발행하게 한다 (관리자의 dead letter 재처리, REQ-F-014 2). */
     void requeue() {
         status = OutboxStatus.PENDING;
         sentAt = null;
         retryCount = 0;
     }
 
-    /** Counts a failed send; the fifth one gives up (REQ-DA-002: FAILED after 5 failures). */
+    /** 발행 실패를 센다. 다섯 번째 실패에서 포기한다 (REQ-DA-002: 5회 실패 시 FAILED). */
     void recordFailure() {
         retryCount++;
         if (retryCount >= MAX_ATTEMPTS) {

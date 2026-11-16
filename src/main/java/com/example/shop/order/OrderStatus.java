@@ -1,6 +1,6 @@
 package com.example.shop.order;
 
-/** orders.status and its transition table (REQ-DA-001). */
+/** orders.status와 그 전이 테이블 (REQ-DA-001). */
 public enum OrderStatus {
     PAYMENT_PENDING,
     PAID,

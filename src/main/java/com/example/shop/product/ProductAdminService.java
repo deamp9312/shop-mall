@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Admin product registration, edit and stop-sale (REQ-F-013). Every change evicts RedisKeys.product(id). */
+/** 관리자 상품 등록·수정·판매 중지(REQ-F-013). 모든 변경은 RedisKeys.product(id)를 evict한다. */
 @Service
 public class ProductAdminService {
 
@@ -29,7 +29,7 @@ public class ProductAdminService {
         return products.findAllWithCategory().stream().map(ProductInfo::from).toList();
     }
 
-    /** Reads the DB directly (not the cache) so the edit form always shows the stored values. */
+    /** 수정 폼이 항상 저장된 값을 보여주도록 캐시가 아닌 DB에서 직접 읽는다. */
     @Transactional(readOnly = true)
     public ProductInfo get(long productId) {
         return products.findWithCategoryById(productId)

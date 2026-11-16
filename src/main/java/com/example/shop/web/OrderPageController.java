@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Order form (REQ-F-006 1). Opened from the cart (orderable lines only) or with "buy now" (productId + qty).
- * Every visit gets a new idempotency key that the form sends as the Idempotency-Key header (REQ-SE-002 1).
+ * 주문서(REQ-F-006 1). 장바구니(주문 가능한 라인만) 또는 "바로 구매"(productId + qty)로 연다.
+ * 방문할 때마다 새 멱등 키를 발급하며, 폼은 이를 Idempotency-Key 헤더로 전송한다 (REQ-SE-002 1).
  */
 @Controller
 public class OrderPageController {

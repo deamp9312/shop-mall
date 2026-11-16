@@ -22,11 +22,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
- * Mock PG approval (REQ-F-008 3, REQ-SE-002 3, 4). There is no real PG: the result the user picked decides the outcome,
- * which is published as payment.completed / payment.failed through the outbox.
+ * mock PG 승인 (REQ-F-008 3, REQ-SE-002 3, 4). 실제 PG는 없으며, 사용자가 고른 결과가 승인 결과를 결정하고
+ * 이를 outbox를 통해 payment.completed / payment.failed로 발행한다.
  * <p>
- * Two layers stop a double approval: the Redis key RedisKeys.idempotency(PAYMENT, orderId) answers a repeat with the
- * first result (or 409 while it runs), and the payment row is updated only while it is still READY ({@link Payment}).
+ * 이중 승인은 두 계층이 막는다. Redis 키 RedisKeys.idempotency(PAYMENT, orderId)는 반복 요청에 최초 결과로
+ * 응답하고(처리 중이면 409), 결제 행은 아직 READY일 때만 갱신된다({@link Payment}).
  */
 @Service
 public class MockPgApprovalService {
@@ -52,9 +52,9 @@ public class MockPgApprovalService {
     }
 
     /**
-     * The caller has already checked that the order belongs to the member.
+     * 주문이 해당 회원의 것인지는 호출자가 이미 확인했다.
      *
-     * @return the payment status after the approval; READY when the delayed answer is still pending
+     * @return 승인 이후의 결제 상태. 지연 응답이 아직 오지 않았으면 READY
      * @throws ShopException PAYMENT_NOT_READY, PAYMENT_EXPIRED, PAYMENT_NOT_PAYABLE, REQUEST_IN_PROGRESS
      */
     public PaymentStatus approve(long orderId, MockPgResult result, PaymentMethod method) {
@@ -70,7 +70,7 @@ public class MockPgApprovalService {
         return settleAndRemember(orderId, result == MockPgResult.SUCCESS, method);
     }
 
-    /** The delayed answer of the mock PG is an approval. */
+    /** mock PG의 지연 응답은 승인이다. */
     private void settleLater(long orderId, PaymentMethod method) {
         try {
             settleAndRemember(orderId, true, method);
@@ -79,7 +79,7 @@ public class MockPgApprovalService {
         }
     }
 
-    /** Stores the result in the idempotency key; a refused approval frees the key so the user can try again. */
+    /** 결과를 멱등 키에 저장한다. 승인이 거부되면 사용자가 다시 시도할 수 있도록 키를 해제한다. */
     private PaymentStatus settleAndRemember(long orderId, boolean approved, PaymentMethod method) {
         String key = String.valueOf(orderId);
         try {
@@ -96,7 +96,7 @@ public class MockPgApprovalService {
         try {
             return transaction.execute(status -> settleReadyPayment(findPayment(orderId), approved, method));
         } catch (ObjectOptimisticLockingFailureException concurrentChange) {
-            // Another approval or a cancellation changed the row first; the conditional UPDATE matched 0 rows.
+            // 다른 승인이나 취소가 먼저 행을 바꿔서 조건부 UPDATE에 일치하는 행이 0건이었다.
             return settledStatusOf(findPayment(orderId));
         }
     }
@@ -123,7 +123,7 @@ public class MockPgApprovalService {
         });
     }
 
-    /** A payment that is no longer READY: an earlier approval's result, or not payable any more. */
+    /** 더 이상 READY가 아닌 결제: 앞선 승인의 결과이거나, 더는 결제할 수 없는 상태다. */
     private static PaymentStatus settledStatusOf(Payment payment) {
         if (payment.getStatus() == PaymentStatus.CANCELLED) {
             throw new ShopException(ErrorCode.PAYMENT_NOT_PAYABLE);

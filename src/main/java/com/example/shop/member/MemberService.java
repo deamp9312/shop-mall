@@ -24,7 +24,7 @@ public class MemberService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /** Registers a USER. The unique index is the final guard against two sign-ups racing with the same email. */
+    /** USER를 등록한다. 같은 이메일로 동시에 가입이 경합할 때는 unique 인덱스가 최종 방어선이다. */
     @Transactional
     public Long register(String email, String rawPassword, String name) {
         String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);

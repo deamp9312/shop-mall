@@ -1,6 +1,6 @@
 package com.example.shop.event;
 
-/** A record that cannot be read as an event envelope. Not retryable: it goes straight to the DLT (REQ-NF-002 3). */
+/** event envelope로 읽을 수 없는 record이다. 재시도 대상이 아니며 곧바로 DLT로 보낸다 (REQ-NF-002 3). */
 public class MalformedEventException extends RuntimeException {
 
     public MalformedEventException(String topic, Throwable cause) {

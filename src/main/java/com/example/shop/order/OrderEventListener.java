@@ -10,7 +10,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Order module consumer (group shop-order). The history row of each change records the consumed event as its cause
+ * 주문 모듈 컨슈머(group shop-order). 각 변경의 이력 행에는 소비한 이벤트를 원인으로 기록한다
  * (REQ-F-012 3).
  */
 @Component

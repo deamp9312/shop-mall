@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Mock PG approval API (REQ-IF-001 5, REQ-F-008 3). No card or account number is ever accepted; the method is for
- * display only. The idempotency key of a payment is its order id (REQ-SE-002 3), so the Idempotency-Key header must
- * carry the order id. 200 with the settled status, 202 while a delayed answer is pending.
+ * Mock PG 승인 API (REQ-IF-001 5, REQ-F-008 3). 카드·계좌 번호는 어떤 경우에도 받지 않으며, 결제 수단은 표시용일
+ * 뿐이다. 결제의 멱등 키는 주문 id이므로(REQ-SE-002 3) Idempotency-Key 헤더에는 주문 id를 담아야 한다.
+ * 결과가 확정되면 확정된 상태와 함께 200을, 지연 응답이 대기 중이면 202를 반환한다.
  */
 @RestController
 public class MockPgApiController {

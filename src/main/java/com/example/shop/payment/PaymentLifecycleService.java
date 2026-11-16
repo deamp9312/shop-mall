@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Payment changes driven by events (REQ-F-008 1, REQ-F-010 2, REQ-F-011 3, REQ-F-009 3). Every method joins the
- * idempotent consumer transaction of {@link PaymentEventListener}.
+ * 이벤트로 일어나는 결제 변경 (REQ-F-008 1, REQ-F-010 2, REQ-F-011 3, REQ-F-009 3). 모든 메서드는
+ * {@link PaymentEventListener}의 멱등 컨슈머 트랜잭션에 참여한다.
  */
 @Service
 public class PaymentLifecycleService {
@@ -26,7 +26,7 @@ public class PaymentLifecycleService {
         this.outbox = outbox;
     }
 
-    /** order.created: a READY payment with the order's amount and deadline. Amounts come from the event, never the client. */
+    /** order.created: 주문 금액과 기한으로 READY 결제를 만든다. 금액은 클라이언트가 아니라 항상 이벤트에서 가져온다. */
     @Transactional(propagation = Propagation.MANDATORY)
     public void prepare(OrderCreatedEvent order, String traceId) {
         if (payments.findByOrderId(order.orderId()).isPresent()) {
@@ -38,10 +38,10 @@ public class PaymentLifecycleService {
     }
 
     /**
-     * order.cancelled (timeout or user) and payment.cancel-requested: a READY payment is just cancelled; an APPROVED one
-     * is refunded at the mock PG, cancelled and announced with payment.cancelled. FAILED or CANCELLED needs nothing.
+     * order.cancelled(타임아웃 또는 사용자 취소)와 payment.cancel-requested: READY 결제는 취소만 하고, APPROVED 결제는
+     * mock PG에서 환불한 뒤 취소하고 payment.cancelled로 알린다. FAILED나 CANCELLED는 할 일이 없다.
      *
-     * @throws PaymentNotPreparedException when order.created has not been handled yet (retried, see the exception)
+     * @throws PaymentNotPreparedException order.created가 아직 처리되지 않았을 때 (재시도된다. 예외 클래스 참고)
      */
     @Transactional(propagation = Propagation.MANDATORY)
     public void cancelForOrder(long orderId) {

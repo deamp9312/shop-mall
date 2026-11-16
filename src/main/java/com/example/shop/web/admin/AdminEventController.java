@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
- * Kafka event screen for the demo (REQ-F-014, ADMIN only): one order's published and consumed events in time order,
- * the dead letters with [재처리], FAILED outbox rows with [다시 발행] and the later rows they hold back, and the failure switch where it is enabled (local profile). Topics themselves are
- * inspected in kafka-ui, not here.
+ * 데모용 Kafka 이벤트 화면(REQ-F-014, ADMIN 전용). 한 주문의 발행·소비 이벤트를 시간순으로 보여주고, [재처리]가 있는
+ * dead letter, [다시 발행]이 있는 FAILED outbox 행과 그 행이 붙잡고 있는 후속 행, 활성화된 환경(local 프로필)에서는
+ * 장애 스위치를 보여준다. 토픽 자체는 여기가 아니라 kafka-ui에서 확인한다.
  */
 @Controller
 public class AdminEventController {

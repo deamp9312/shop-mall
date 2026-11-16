@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Failure demo switch of the admin event screen (REQ-F-014 3). Armed for a consumer group with N, it makes the next N
- * events that group handles fail on every delivery attempt, so each one goes through the 1s/2s/4s retries to the DLT.
- * A later delivery of the same event (the admin retry) passes.
+ * 관리자 이벤트 화면의 장애 시연 스위치이다 (REQ-F-014 3). consumer group에 N으로 설정하면 그 group이 다음에
+ * 처리하는 N개 이벤트가 모든 전달 시도에서 실패하므로, 각 이벤트는 1s/2s/4s 재시도를 거쳐 DLT로 간다.
+ * 같은 이벤트의 이후 전달(관리자 재처리)은 통과한다.
  * <p>
- * Works only where {@code shop.demo.failure-switch-enabled} is true: the local profile for the demo and the test profile
- * for its verification. State is in memory, so it belongs to one instance and is gone after a restart.
+ * {@code shop.demo.failure-switch-enabled}가 true인 곳, 즉 시연용 local profile과 검증용 test profile에서만 동작한다.
+ * 상태는 메모리에 있으므로 인스턴스 하나에 속하며 재시작하면 사라진다.
  */
 @Component
 public class ConsumerFailureSwitch {
@@ -26,9 +26,9 @@ public class ConsumerFailureSwitch {
     private static final Logger log = LoggerFactory.getLogger(ConsumerFailureSwitch.class);
 
     private final boolean enabled;
-    /** consumer group -> events still to fail. */
+    /** consumer group -> 아직 실패시킬 이벤트 수. */
     private final Map<String, Integer> remaining = new ConcurrentHashMap<>();
-    /** group + eventId of an event being failed -> attempts failed so far. */
+    /** 실패시키는 중인 이벤트의 group + eventId -> 지금까지 실패한 시도 횟수. */
     private final Map<String, Integer> failedAttempts = new ConcurrentHashMap<>();
 
     public ConsumerFailureSwitch(@Value("${shop.demo.failure-switch-enabled:false}") boolean enabled) {
@@ -39,7 +39,7 @@ public class ConsumerFailureSwitch {
         return enabled;
     }
 
-    /** @param count 0 disarms the group */
+    /** @param count 0이면 해당 group의 스위치를 해제한다 */
     public void arm(String consumerGroup, int count) {
         if (!enabled) {
             throw new ShopException(ErrorCode.NOT_FOUND);
@@ -59,7 +59,7 @@ public class ConsumerFailureSwitch {
         return new TreeMap<>(remaining);
     }
 
-    /** Called by {@link IdempotentEventProcessor} right before the handler, inside its transaction. */
+    /** {@link IdempotentEventProcessor}가 자신의 트랜잭션 안에서 handler 직전에 호출한다. */
     void failIfArmed(String consumerGroup, String eventId) {
         if (!enabled) {
             return;
@@ -84,7 +84,7 @@ public class ConsumerFailureSwitch {
         return taken.get();
     }
 
-    /** Retryable on purpose: the demo shows the retries before the DLT. */
+    /** 일부러 재시도 가능하게 둔다. 시연에서 DLT 전의 재시도를 보여주기 위해서이다. */
     static class ForcedConsumerFailure extends RuntimeException {
 
         ForcedConsumerFailure(String consumerGroup, String eventId, int attempt) {

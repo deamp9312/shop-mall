@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 /**
- * Mock payment screen (REQ-F-008 2, 5). Only the owner's order opens (404 otherwise). Without a READY payment yet
- * (order.created not consumed) the page shows "결제 준비 중" and polls; after the deadline the buttons are disabled.
+ * Mock 결제 화면(REQ-F-008 2, 5). 본인 주문만 열린다(아니면 404). 아직 READY 결제가 없으면(order.created 미소비)
+ * "결제 준비 중"을 표시하고 폴링하며, 기한이 지나면 버튼을 비활성화한다.
  */
 @Controller
 public class PaymentPageController {

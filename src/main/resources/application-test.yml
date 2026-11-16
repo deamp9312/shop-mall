@@ -1,20 +1,20 @@
-# test profile: connection info is injected from Testcontainers (IntegrationTestSupport).
-# No seed data here (REQ-DA-003).
+# test 프로파일: 접속 정보는 Testcontainers(IntegrationTestSupport)에서 주입한다.
+# 여기에는 시드 데이터가 없다(REQ-DA-003).
 spring:
   flyway:
     locations: classpath:db/migration
   jpa:
     properties:
       hibernate:
-        # REQ-F-004 1): lets tests count SQL statements to prove the second product read hits the cache
+        # REQ-F-004 1): 두 번째 상품 조회가 캐시를 타는지 증명하도록 테스트에서 SQL 실행 횟수를 셀 수 있게 한다
         generate_statistics: true
 
 shop:
   order:
-    # REQ-F-010: tests set an order's deadline into the past and wait for the job instead of a whole minute
+    # REQ-F-010: 테스트는 주문 마감 시각을 과거로 설정하고 1분 전체가 아니라 잡 실행만 기다린다
     timeout-check-interval: PT1S
   payment:
     mock-delay: 1s
   demo:
-    # REQ-F-014 3) verification needs the failure switch
+    # REQ-F-014 3) 검증에 실패 스위치가 필요하다
     failure-switch-enabled: true

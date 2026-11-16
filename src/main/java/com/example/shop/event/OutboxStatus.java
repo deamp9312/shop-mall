@@ -4,6 +4,6 @@ package com.example.shop.event;
 public enum OutboxStatus {
     PENDING,
     SENT,
-    /** Gave up after {@link OutboxEvent#MAX_ATTEMPTS} failures that were not a broker outage; shown to the admin. */
+    /** 브로커 장애가 아닌 실패가 {@link OutboxEvent#MAX_ATTEMPTS}회 누적되어 포기한 상태이다. 관리자에게 노출된다. */
     FAILED
 }

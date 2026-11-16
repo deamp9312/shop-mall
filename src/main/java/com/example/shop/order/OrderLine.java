@@ -1,6 +1,6 @@
 package com.example.shop.order;
 
-/** One product line used to place an order. The price is the server-side product price at order time. */
+/** 주문 생성에 쓰는 상품 한 줄. 가격은 주문 시점에 서버가 조회한 상품 가격이다. */
 public record OrderLine(long productId, String productName, long unitPrice, int quantity) {
 
     public OrderLine {

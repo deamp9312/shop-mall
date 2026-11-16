@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * Admin event APIs (REQ-F-014): dead letter retry (REQ-IF-001 6), FAILED outbox re-queue and the failure switch, which answers 404 where it is
- * disabled (every profile except local and test).
+ * 관리자 이벤트 API(REQ-F-014). dead letter 재처리(REQ-IF-001 6), FAILED outbox 재등록, 장애 스위치를 제공한다.
+ * 장애 스위치는 비활성화된 환경(local, test를 제외한 모든 프로필)에서 404를 응답한다.
  */
 @RestController
 public class AdminEventApiController {
@@ -35,14 +35,14 @@ public class AdminEventApiController {
         this.failureSwitch = failureSwitch;
     }
 
-    /** 404 unknown id, 409 already retried or not an intact envelope of our topics. */
+    /** 알 수 없는 id면 404, 이미 재처리했거나 우리 토픽의 온전한 envelope가 아니면 409. */
     @PostMapping("/api/admin/dlt/{id}/retry")
     public RetryResponse retry(@PathVariable long id) {
         deadLetters.retry(id);
         return new RetryResponse(id, true);
     }
 
-    /** FAILED outbox row -> PENDING. 404 unknown id, 409 not FAILED (already re-queued or never failed). */
+    /** FAILED outbox 행 -> PENDING. 알 수 없는 id면 404, FAILED가 아니면(이미 재등록했거나 실패한 적 없음) 409. */
     @PostMapping("/api/admin/outbox/{id}/requeue")
     public RetryResponse requeueOutboxEvent(@PathVariable long id) {
         outboxRecovery.requeue(id);

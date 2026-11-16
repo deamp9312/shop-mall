@@ -13,8 +13,8 @@ import org.springframework.data.redis.serializer.RedisSerializationContext.Seria
 import java.time.Duration;
 
 /**
- * Product cache: key RedisKeys.product(id), TTL 10 minutes, plain JSON of {@link ProductInfo} without Java class names,
- * so a changed class never fails to deserialize old JDK bytes (REQ-F-004).
+ * 상품 캐시: 키 RedisKeys.product(id), TTL 10분, Java 클래스명 없는 {@link ProductInfo}의 순수 JSON으로 저장한다.
+ * 따라서 클래스가 바뀌어도 기존 JDK 직렬화 바이트를 역직렬화하다 실패하는 일이 없다(REQ-F-004).
  */
 @Configuration(proxyBeanMethods = false)
 @EnableCaching

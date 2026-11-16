@@ -28,8 +28,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Places orders (REQ-F-006): idempotency key -> stock reservation -> order row -> outbox, then the payment screen.
- * Only the DB write and the reservation are synchronous; payment preparation follows the order.created event.
+ * 주문을 접수한다 (REQ-F-006): 멱등 키 -> 재고 예약 -> 주문 행 -> outbox 순으로 처리한 뒤 결제 화면으로 넘긴다.
+ * DB 쓰기와 예약만 동기로 처리하며, 결제 준비는 order.created 이벤트를 받아 이어서 진행한다.
  */
 @Service
 public class OrderService {
@@ -57,8 +57,8 @@ public class OrderService {
     }
 
     /**
-     * @return id of the new order, or of the order an earlier request with the same key created
-     * @throws ShopException OUT_OF_STOCK (nothing reserved, no order), REQUEST_IN_PROGRESS, PRODUCT_NOT_ON_SALE, ...
+     * @return 새 주문의 id, 또는 같은 키로 앞서 들어온 요청이 생성한 주문의 id
+     * @throws ShopException OUT_OF_STOCK (예약된 것도, 생성된 주문도 없음), REQUEST_IN_PROGRESS, PRODUCT_NOT_ON_SALE, ...
      */
     public long place(long memberId, String idempotencyKey, List<OrderRequestLine> items, ShippingInfo shipping) {
         Optional<String> earlierResult = idempotencyKeys.claim(IdempotencyScope.ORDER, idempotencyKey);
@@ -82,14 +82,14 @@ public class OrderService {
                 .orElseThrow(() -> new ShopException(ErrorCode.ORDER_NOT_FOUND));
     }
 
-    /** A replayed key belongs to the member who used it first; anyone else gets 409 instead of that order id. */
+    /** 재사용된 키는 처음 사용한 회원의 것이다. 다른 회원은 해당 주문 id 대신 409를 받는다. */
     private long ownedOrder(long memberId, long orderId) {
         return orders.findByIdAndMemberId(orderId, memberId)
                 .map(Order::getId)
                 .orElseThrow(() -> new ShopException(ErrorCode.IDEMPOTENCY_KEY_REUSED));
     }
 
-    /** Second idempotency layer: the Redis key expired or was lost, but the unique DB key finds the first order. */
+    /** 두 번째 멱등 계층: Redis 키가 만료되거나 유실되어도 DB 유니크 키로 최초 주문을 찾는다. */
     private long createOrFindExisting(long memberId, String idempotencyKey, List<OrderRequestLine> items,
                                       ShippingInfo shipping) {
         List<OrderLine> lines = priceOnServer(items);
@@ -103,8 +103,8 @@ public class OrderService {
     }
 
     /**
-     * One transaction: order row, reservation rows + Redis decrement (Lua), outbox row. A short product rolls the
-     * order back; a failure after the Redis decrement rolls back and gives the stock back (REQ-F-006 3, 4).
+     * 하나의 트랜잭션: 주문 행, 예약 행 + Redis 차감(Lua), outbox 행. 재고가 부족한 상품이 있으면 주문을 롤백하고,
+     * Redis 차감 이후에 실패하면 롤백하면서 재고를 되돌린다 (REQ-F-006 3, 4).
      */
     private long create(long memberId, String idempotencyKey, List<OrderLine> lines, ShippingInfo shipping) {
         return transaction.execute(status -> {
@@ -129,7 +129,7 @@ public class OrderService {
         }
     }
 
-    /** REQ-F-006: the amount always comes from the current product price, never from the client. */
+    /** REQ-F-006: 금액은 클라이언트 값이 아니라 항상 현재 상품 가격으로 정한다. */
     private List<OrderLine> priceOnServer(List<OrderRequestLine> items) {
         Map<Long, OrderRequestLine> byProduct = new LinkedHashMap<>();
         for (OrderRequestLine item : items) {

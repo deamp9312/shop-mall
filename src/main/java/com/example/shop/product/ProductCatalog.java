@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Read side of products: listing straight from the DB, single product through the Redis cache (REQ-F-003, 004). */
+/** 상품 조회 측: 목록은 DB에서 바로, 단건은 Redis 캐시를 거쳐 조회한다(REQ-F-003, 004). */
 @Service
 @Transactional(readOnly = true)
 public class ProductCatalog {
@@ -32,7 +32,7 @@ public class ProductCatalog {
                 .orElseThrow(() -> new ShopException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
-    /** @param pageIndex zero-based page index */
+    /** @param pageIndex 0부터 시작하는 페이지 인덱스 */
     public Page<ProductInfo> search(ProductSearchCondition condition, int pageIndex) {
         PageRequest page = PageRequest.of(pageIndex, ProductSearchCondition.PAGE_SIZE, condition.sort().sort());
         return products.searchOnSale(condition.categoryId(), condition.likePattern(), page).map(ProductInfo::from);

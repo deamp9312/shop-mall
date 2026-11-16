@@ -12,10 +12,10 @@ import java.util.Optional;
 interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
 
     /**
-     * Oldest PENDING rows, locked for this relay. SKIP LOCKED lets another instance take the next rows instead of
-     * waiting (REQ-DA-002), so one event is sent by one relay at a time. A row is held back while an earlier row of the
-     * same order (message key) is FAILED, so it never overtakes it; the admin re-queue releases it. Only the outbox
-     * rows themselves are locked (OF o), the FAILED check is a plain read.
+     * 가장 오래된 PENDING 행을 이 relay용으로 잠근다. SKIP LOCKED 덕분에 다른 인스턴스는 대기하지 않고 다음 행을
+     * 가져가므로 (REQ-DA-002) 한 이벤트는 한 번에 하나의 relay만 발행한다. 같은 주문(message key)의 앞선 행이 FAILED인
+     * 동안 뒤 행은 보류되어 앞 행을 추월하지 않으며, 관리자 재등록으로 풀린다. 잠그는 것은 outbox 행 자체(OF o)뿐이고
+     * FAILED 확인은 일반 read이다.
      */
     @Query(value = """
             select o.* from outbox_events o
@@ -28,7 +28,7 @@ interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
             """, nativeQuery = true)
     List<OutboxEvent> lockPending(@Param("limit") int limit);
 
-    /** FAILED rows for the event screen (REQ-F-014), newest first, with the PENDING rows each one holds back. */
+    /** 이벤트 화면용 FAILED 행을 최신순으로, 각 행이 보류시킨 PENDING 행 수와 함께 조회한다 (REQ-F-014). */
     @Query("""
             select new com.example.shop.event.FailedOutboxEvent(f.id, f.eventId, f.topic, f.messageKey, f.retryCount,
                 f.createdAt,
@@ -41,7 +41,7 @@ interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
             """)
     List<FailedOutboxEvent> findRecentFailed();
 
-    /** PENDING rows held back behind a FAILED row of the same order. */
+    /** 같은 주문의 FAILED 행 뒤에 보류된 PENDING 행 수이다. */
     @Query("""
             select count(p) from OutboxEvent p
             where p.status = com.example.shop.event.OutboxStatus.PENDING
@@ -50,7 +50,7 @@ interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
             """)
     long countHeldBack();
 
-    /** FAILED -> PENDING with a fresh attempt count; 0 when the row is not FAILED (any more). */
+    /** 시도 횟수를 초기화하며 FAILED -> PENDING으로 바꾼다. 행이 (더 이상) FAILED가 아니면 0을 반환한다. */
     @Modifying
     @Query("""
             update OutboxEvent e

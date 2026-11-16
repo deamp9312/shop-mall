@@ -9,10 +9,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Event history of one order for the admin event screen (REQ-F-014 1): outbox rows (published) and processed_events
- * rows (consumed), merged in time order. Both tables are joined on event_id; the outbox message key is the orderId.
- * A published event is placed at its outbox created_at (recorded with the domain change): the relay stamps sent_at only
- * after the broker's ack, which can be later than a fast consumer's processed_at.
+ * 관리자 이벤트 화면용 주문 하나의 이벤트 이력이다 (REQ-F-014 1). outbox 행(발행)과 processed_events 행(소비)을
+ * 시간순으로 병합한다. 두 테이블은 event_id로 join하며, outbox message key는 orderId이다.
+ * 발행 이벤트는 outbox created_at(도메인 변경과 함께 기록됨) 시점에 배치한다. relay는 broker ack를 받은 뒤에야
+ * sent_at을 찍으므로, 빠른 consumer의 processed_at보다 늦을 수 있기 때문이다.
  */
 @Component
 public class EventTraceQuery {
@@ -46,15 +46,15 @@ public class EventTraceQuery {
     }
 
     /**
-     * One line of the history. result is the outbox status (PENDING / SENT / FAILED) for a published event and
-     * {@link #PROCESSED} for a consumed one.
+     * 이력의 한 줄이다. result는 발행 이벤트이면 outbox 상태(PENDING / SENT / FAILED)이고, 소비 이벤트이면
+     * {@link #PROCESSED}이다.
      */
     public record EventTraceEntry(LocalDateTime at, Kind kind, String topic, String eventId, String consumerGroup,
                                   String result) {
 
         public static final String PROCESSED = "PROCESSED";
 
-        /** Declared in the order a publish precedes its consumption when both have the same timestamp. */
+        /** timestamp가 같을 때 발행이 소비보다 앞서도록 이 순서로 선언한다. */
         public enum Kind {
             PUBLISHED,
             CONSUMED

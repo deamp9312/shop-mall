@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** Order line with product name and price copied at order time (REQ-DA-001). */
+/** 주문 시점의 상품명과 가격을 복사해 둔 주문 라인 (REQ-DA-001). */
 @Entity
 @Table(name = "order_items")
 public class OrderItem {

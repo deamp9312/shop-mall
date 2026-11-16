@@ -12,13 +12,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDateTime;
 
 /**
- * Cancels orders and starts the compensation (REQ-F-010 2, REQ-F-011 2): the order becomes CANCELLED and order.cancelled
- * is recorded in the same transaction; the stock and payment modules restore stock and cancel the payment when they
- * consume it.
+ * 주문을 취소하고 보상 처리를 시작한다 (REQ-F-010 2, REQ-F-011 2). 주문을 CANCELLED로 바꾸고 같은 트랜잭션에서
+ * order.cancelled를 기록한다. 재고·결제 모듈은 이를 소비하면서 재고를 복원하고 결제를 취소한다.
  * <p>
- * The order row is locked before the status check ({@link OrderRepository#findForStatusChange}), so a concurrent
- * change of the same order (the order consumer marking it PAID, another timeout run) waits and then sees the result:
- * an order is cancelled and announced at most once.
+ * 상태 검사 전에 주문 행을 잠그므로({@link OrderRepository#findForStatusChange}), 같은 주문에 대한 동시 변경(주문
+ * 컨슈머의 PAID 처리, 다른 타임아웃 실행)은 대기한 뒤 그 결과를 보게 된다. 따라서 주문은 최대 한 번만 취소·발행된다.
  */
 @Service
 public class OrderCancellationService {
@@ -35,7 +33,7 @@ public class OrderCancellationService {
         this.transaction = transaction;
     }
 
-    /** @throws ShopException ORDER_NOT_FOUND (also for another member's order), ORDER_NOT_CANCELLABLE */
+    /** @throws ShopException ORDER_NOT_FOUND (다른 회원의 주문인 경우 포함), ORDER_NOT_CANCELLABLE */
     public void cancelByMember(long memberId, long orderId) {
         transaction.executeWithoutResult(status -> {
             Order order = orders.findForStatusChange(orderId)
@@ -48,7 +46,7 @@ public class OrderCancellationService {
         });
     }
 
-    /** @return true when this call cancelled the order; false when it was paid or cancelled meanwhile */
+    /** @return 이 호출이 주문을 취소했으면 true, 그사이 결제되었거나 이미 취소되었으면 false */
     public boolean cancelIfPaymentOverdue(long orderId, LocalDateTime now) {
         Boolean cancelled = transaction.execute(status -> orders.findForStatusChange(orderId)
                 .filter(order -> order.isPaymentOverdueAt(now))

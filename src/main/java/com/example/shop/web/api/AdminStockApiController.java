@@ -4,7 +4,7 @@ import com.example.shop.stock.AvailableStockSynchronizer;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** POST /api/admin/stock/resync (REQ-IF-001 6, REQ-F-013 4). 409 while another resync holds the lock. */
+/** POST /api/admin/stock/resync (REQ-IF-001 6, REQ-F-013 4). 다른 resync가 락을 잡고 있는 동안은 409. */
 @RestController
 public class AdminStockApiController {
 

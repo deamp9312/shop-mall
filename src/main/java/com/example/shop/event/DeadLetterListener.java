@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Stores every *.DLT record in dead_letter_events (REQ-NF-002 4) with the original topic and the exception message
- * that DeadLetterPublishingRecoverer put in the headers.
+ * 모든 *.DLT record를 원본 topic, 그리고 DeadLetterPublishingRecoverer가 header에 넣은 예외 메시지와 함께
+ * dead_letter_events에 저장한다 (REQ-NF-002 4).
  */
 @Component
 class DeadLetterListener {

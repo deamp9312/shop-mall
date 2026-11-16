@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Adds a "kafka" component to /actuator/health (REQ-F-001); Spring Boot has no built-in Kafka indicator.
+ * /actuator/health에 "kafka" component를 추가한다 (REQ-F-001). Spring Boot에는 내장 Kafka indicator가 없다.
  */
 @Component
 public class KafkaHealthIndicator extends AbstractHealthIndicator implements DisposableBean {

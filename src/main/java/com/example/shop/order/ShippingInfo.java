@@ -4,7 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 /**
- * Receiver and address text (REQ-F-006). Deliberately has no toString so that the address never reaches a log
+ * 수령인과 주소 텍스트 (REQ-F-006). 주소가 절대 로그에 남지 않도록 의도적으로 toString을 두지 않는다
  * (REQ-SE-003).
  */
 @Embeddable

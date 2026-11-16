@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
-/** A record that reached a *.DLT topic (REQ-NF-002 4). Listed and re-sent from the admin event screen (REQ-F-014). */
+/** *.DLT topic에 도달한 record이다 (REQ-NF-002 4). 관리자 이벤트 화면에서 조회하고 재발행한다 (REQ-F-014). */
 @Entity
 @Table(name = "dead_letter_events")
 public class DeadLetterEvent {

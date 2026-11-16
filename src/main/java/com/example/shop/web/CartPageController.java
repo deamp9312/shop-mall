@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** Cart screen (REQ-F-005 3). Changes are made with fetch calls to /api/cart. */
+/** 장바구니 화면(REQ-F-005 3). 변경은 /api/cart에 대한 fetch 호출로 처리한다. */
 @Controller
 public class CartPageController {
 

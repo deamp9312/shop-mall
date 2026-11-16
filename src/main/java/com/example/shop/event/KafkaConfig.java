@@ -16,16 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Topics (REQ-IF-002 1, 5) and the consumer error handling shared by every listener (REQ-NF-002 2, 3).
- * Ack mode RECORD, earliest offset reset and producer acks/idempotence are in application.yml.
- * Spring Boot applies the error handler and {@link TraceRecordInterceptor} beans to the default listener factory.
+ * topic 구성(REQ-IF-002 1, 5)과 모든 listener가 공유하는 consumer 오류 처리(REQ-NF-002 2, 3)이다.
+ * Ack mode RECORD, earliest offset reset, producer acks/idempotence 설정은 application.yml에 있다.
+ * Spring Boot가 error handler와 {@link TraceRecordInterceptor} bean을 기본 listener factory에 적용한다.
  */
 @Configuration(proxyBeanMethods = false)
 class KafkaConfig {
 
-    /** 1 s, 2 s, 4 s: three retries, so a record is tried four times before it goes to the DLT. */
+    /** 1 s, 2 s, 4 s로 세 번 재시도하므로 record는 DLT로 가기 전에 총 네 번 시도된다. */
     private static final int MAX_RETRIES = 3;
-    /** First delivery plus the retries. */
+    /** 최초 전달에 재시도 횟수를 더한 값이다. */
     static final int DELIVERY_ATTEMPTS = MAX_RETRIES + 1;
     private static final long FIRST_RETRY_INTERVAL_MILLIS = 1_000;
     private static final double RETRY_MULTIPLIER = 2.0;
@@ -45,9 +45,9 @@ class KafkaConfig {
     }
 
     /**
-     * Retries with exponential back-off, then publishes the record to topic + ".DLT" on the same partition.
-     * A malformed record, a transition the state table forbids or a business rule failure (ShopException, for
-     * example an event for an order that does not exist) would fail the same way every time, so it skips the retries.
+     * exponential back-off으로 재시도한 뒤 record를 같은 partition의 topic + ".DLT"로 발행한다.
+     * 형식이 잘못된 record, 상태 테이블이 금지한 전이, 비즈니스 규칙 위반(ShopException, 예: 존재하지 않는 주문의
+     * 이벤트)은 매번 똑같이 실패하므로 재시도를 건너뛴다.
      */
     @Bean
     DefaultErrorHandler kafkaErrorHandler(KafkaOperations<String, String> kafkaTemplate) {

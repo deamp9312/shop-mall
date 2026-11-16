@@ -1,4 +1,4 @@
-// Vanilla JS for fetch calls. Every non-GET request carries the CSRF token from the meta tags (REQ-SE-001 3).
+// fetch 호출용 Vanilla JS. GET이 아닌 모든 요청은 meta 태그의 CSRF 토큰을 싣는다(REQ-SE-001 3).
 'use strict';
 
 const Shop = (() => {
@@ -47,7 +47,7 @@ const Shop = (() => {
     return { api, showMessage, sleep, orderStatus };
 })();
 
-// REQ-F-008: mock payment screen - countdown, "결제 준비 중" until the READY payment exists, then result polling.
+// REQ-F-008: 모의 결제 화면 - 카운트다운, READY 결제가 생길 때까지 "결제 준비 중" 표시, 이후 결과 폴링.
 const MockPayment = (() => {
     const POLL_INTERVAL_MILLIS = 1000;
     const RESULT_POLL_LIMIT = 30;
@@ -116,7 +116,7 @@ const MockPayment = (() => {
         }
     }
 
-    /** Polls every second for up to 30 seconds, then moves to the order detail (the result screen). */
+    /** 최대 30초 동안 1초마다 폴링한 뒤 주문 상세(결과 화면)로 이동한다. */
     async function waitForResult(orderId) {
         for (let i = 0; i < RESULT_POLL_LIMIT; i++) {
             const status = await Shop.orderStatus(orderId);
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkout = document.querySelector('[data-checkout]');
     const placeOrderButton = document.querySelector('[data-place-order]');
     if (checkout && placeOrderButton) {
-        // REQ-F-006 / REQ-SE-002: no prices are sent, and the key issued with this page makes a double click harmless
+        // REQ-F-006 / REQ-SE-002: 가격은 보내지 않으며, 이 페이지와 함께 발급된 키로 더블 클릭을 무해하게 만든다
         placeOrderButton.addEventListener('click', () => run(async () => {
             const form = document.getElementById('shipping-form');
             if (!form.reportValidity()) {

@@ -13,7 +13,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
-/** Member account; the password is stored only as a BCrypt hash (REQ-F-002, REQ-SE-001). */
+/** 회원 계정. 비밀번호는 BCrypt 해시로만 저장한다 (REQ-F-002, REQ-SE-001). */
 @Entity
 @Table(name = "members")
 public class Member {
@@ -42,7 +42,7 @@ public class Member {
     protected Member() {
     }
 
-    /** Self sign-up always creates a USER; ADMIN exists only as seed data (REQ-F-002 3). */
+    /** 자가 가입은 항상 USER를 생성한다. ADMIN은 시드 데이터로만 존재한다 (REQ-F-002 3). */
     public static Member register(String email, String passwordHash, String name) {
         Member member = new Member();
         member.email = email;

@@ -31,8 +31,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 
 /**
- * Path and role rules (REQ-SE-001 1), form login with lock (REQ-F-002, REQ-SE-001 4), CSRF on forms and fetch
- * (REQ-SE-001 3). JSON endpoints answer 401/403 with {code, message}; pages redirect to /login or show 403.
+ * 경로·역할 규칙(REQ-SE-001 1), 잠금이 적용된 form login(REQ-F-002, REQ-SE-001 4), form과 fetch에 대한 CSRF
+ * (REQ-SE-001 3)를 구성한다. JSON 엔드포인트는 {code, message}로 401/403을 응답하고, 페이지는 /login으로 리다이렉트하거나
+ * 403을 보여준다.
  */
 @Configuration(proxyBeanMethods = false)
 class SecurityConfig {
@@ -65,7 +66,7 @@ class SecurityConfig {
         return http.build();
     }
 
-    /** JSON endpoints get 401 {code, message}; every other request is sent to the login page. */
+    /** JSON 엔드포인트는 401 {code, message}를 받고, 그 외 요청은 모두 로그인 페이지로 보낸다. */
     private static AuthenticationEntryPoint entryPoint(ObjectMapper objectMapper) {
         LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> byPath = new LinkedHashMap<>();
         byPath.put(JSON_ENDPOINTS,
@@ -75,7 +76,7 @@ class SecurityConfig {
         return entryPoint;
     }
 
-    /** JSON endpoints get 403 {code, message}; pages get the error/403 page. */
+    /** JSON 엔드포인트는 403 {code, message}를 받고, 페이지는 error/403 페이지를 받는다. */
     private static AccessDeniedHandler accessDeniedHandler(ObjectMapper objectMapper) {
         LinkedHashMap<RequestMatcher, AccessDeniedHandler> byPath = new LinkedHashMap<>();
         byPath.put(JSON_ENDPOINTS, (request, response, e) -> writeError(response, objectMapper, ErrorCode.FORBIDDEN));

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Business errors on page controllers render an error page with the matching status (for example 404 for an unknown
- * product). JSON controllers in web.api are handled first by ApiExceptionHandler.
+ * 페이지 컨트롤러의 비즈니스 오류는 해당 상태 코드의 에러 페이지로 렌더링한다(예: 존재하지 않는 상품이면 404).
+ * web.api의 JSON 컨트롤러는 ApiExceptionHandler가 먼저 처리한다.
  */
 @ControllerAdvice(basePackageClasses = PageExceptionHandler.class)
 class PageExceptionHandler {

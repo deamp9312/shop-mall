@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Locale;
 
-/** Loads members for form login. Created by the security configuration, not registered as a bean of its own. */
+/** form login용으로 회원을 조회한다. 보안 설정에서 생성하며, 별도 빈으로 등록하지 않는다. */
 public class MemberDetailsService implements UserDetailsService {
 
     private final MemberRepository members;

@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Read side of orders: order list and detail screens (REQ-F-012) and the notification module's member lookup. */
+/** 주문 조회 측: 주문 목록·상세 화면(REQ-F-012)과 알림 모듈의 회원 조회를 담당한다. */
 @Service
 @Transactional(readOnly = true)
 public class OrderQueryService {
@@ -20,16 +20,16 @@ public class OrderQueryService {
         this.orders = orders;
     }
 
-    /** @param page zero-based */
+    /** @param page 0부터 시작한다 */
     public Page<OrderSummary> findSummaries(long memberId, int page) {
         return orders.findByMemberIdOrderByCreatedAtDescIdDesc(memberId, PageRequest.of(Math.max(page, 0), PAGE_SIZE))
                 .map(OrderSummary::of);
     }
 
     /**
-     * The order with its lines and status history loaded, for the detail page (open-in-view is off).
+     * 상세 페이지용으로 주문 라인과 상태 이력을 로딩한 주문을 반환한다 (open-in-view가 꺼져 있다).
      *
-     * @throws ShopException ORDER_NOT_FOUND, also for another member's order (REQ-F-012: existence is not revealed)
+     * @throws ShopException ORDER_NOT_FOUND, 다른 회원의 주문인 경우에도 마찬가지다 (REQ-F-012: 존재 여부를 드러내지 않는다)
      */
     public Order findDetail(long memberId, long orderId) {
         Order order = orders.findByIdAndMemberId(orderId, memberId)

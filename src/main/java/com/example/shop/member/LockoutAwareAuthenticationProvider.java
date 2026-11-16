@@ -7,8 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Form login with the 5-failure lock (REQ-SE-001 4). The lock is checked before the member lookup, so a locked
- * unknown email and a locked real account answer the same way (no account enumeration).
+ * 5회 실패 잠금이 적용된 form login(REQ-SE-001 4). 잠금은 회원 조회보다 먼저 확인하므로, 잠긴 미가입 이메일과 잠긴
+ * 실제 계정이 동일하게 응답한다(계정 열거 방지).
  */
 public class LockoutAwareAuthenticationProvider extends DaoAuthenticationProvider {
 

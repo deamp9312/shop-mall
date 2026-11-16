@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
-/** Main page = product listing with category, name search, sort and 12-per-page paging (REQ-F-003). */
+/** 메인 페이지 = 카테고리, 이름 검색, 정렬, 페이지당 12건 페이징을 지원하는 상품 목록 (REQ-F-003). */
 @Controller
 public class HomeController {
 
@@ -25,7 +25,7 @@ public class HomeController {
         this.availableStock = availableStock;
     }
 
-    /** @param page one-based page number as shown on screen */
+    /** @param page 화면에 표시되는 1부터 시작하는 페이지 번호 */
     @GetMapping("/")
     public String home(@RequestParam(required = false) Long category,
                        @RequestParam(required = false) String q,

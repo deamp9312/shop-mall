@@ -1,8 +1,8 @@
 package com.example.shop.event;
 
 /**
- * Event types with their topic and payload schema version (REQ-IF-002). The name is written to the envelope's
- * eventType and to order_status_history.event_type. Bump the version when a payload changes incompatibly.
+ * 이벤트 유형과 그 topic, payload 스키마 버전이다 (REQ-IF-002). 이름은 envelope의 eventType과
+ * order_status_history.event_type에 기록된다. payload가 호환되지 않게 바뀌면 버전을 올린다.
  */
 public enum EventType {
     ORDER_CREATED(EventTopics.ORDER_CREATED),
