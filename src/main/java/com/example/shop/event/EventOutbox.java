@@ -26,7 +26,18 @@ public class EventOutbox {
         this.objectMapper = objectMapper;
     }
 
-    /** 반드시 호출자의 트랜잭션에 참여해야 한다. 그렇지 않으면 변경 없이 이벤트만 저장되거나 그 반대가 될 수 있다. */
+    /**
+     * 반드시 호출자의 트랜잭션에 참여해야 한다. 그렇지 않으면 변경 없이 이벤트만 저장되거나 그 반대가 될 수 있다.
+     * <pre>
+     * ※ 여기서는 Kafka를 호출하지 않는다. DB(outbox_events)에 저장만 하고, 실제 발행은 OutboxRelay가 0.5초 뒤 한다.
+     * [IN]  new OrderCreatedEvent(orderId=7, memberId=1, items=[(productId=3, qty=2, price=8900)],
+     *                             totalAmount=17800, expiresAt=2026-11-24T10:15)
+     * [OUT] outbox_events INSERT
+     *       id=101, event_id="9b1deb4d-...", topic="shop.order.created", message_key="7",
+     *       payload='{"eventId":"9b1deb4d-...","eventType":"ORDER_CREATED",...,"payload":{"orderId":7,...}}',
+     *       status=PENDING, retry_count=0
+     * </pre>
+     */
     @Transactional(propagation = Propagation.MANDATORY)
     public void record(DomainEvent event) {
         EventEnvelope<DomainEvent> envelope = EventEnvelope.wrap(event, TraceIds.currentOrNew());
@@ -39,6 +50,13 @@ public class EventOutbox {
      * dead letter로 간 envelope를 원래 eventId 그대로, 변경 없이 다시 발행한다 (REQ-F-014 2). 이미 처리한 consumer
      * group은 eventId로 건너뛰므로 실패했던 group만 처리한다. 원래 outbox 행이 아직 남아 있으면 그 행을 재등록하고
      * (event_id는 unique이다), 없으면 새 행을 저장한다.
+     * <pre>
+     * [IN]  eventId="9b1deb4d-...", topic="shop.order.created", messageKey="7",
+     *       envelopeJson='{"eventId":"9b1deb4d-...","eventType":"ORDER_CREATED",...}'  ← DLT에 저장돼 있던 원문 그대로
+     * [OUT] 원래 행이 있으면: outbox_events(id=101) status SENT → PENDING, retry_count=0
+     *       없으면:           outbox_events 새 행 INSERT (같은 event_id, status=PENDING)
+     *       → OutboxRelay가 다음 poll에서 shop.order.created로 다시 발행
+     * </pre>
      */
     @Transactional(propagation = Propagation.MANDATORY)
     public void republish(String eventId, String topic, String messageKey, String envelopeJson) {

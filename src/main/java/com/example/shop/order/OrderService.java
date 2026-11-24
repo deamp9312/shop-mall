@@ -105,6 +105,16 @@ public class OrderService {
     /**
      * 하나의 트랜잭션: 주문 행, 예약 행 + Redis 차감(Lua), outbox 행. 재고가 부족한 상품이 있으면 주문을 롤백하고,
      * Redis 차감 이후에 실패하면 롤백하면서 재고를 되돌린다 (REQ-F-006 3, 4).
+     * <pre>
+     * ★ Kafka 연계 시작점: 주문 생성 이벤트를 outbox에 기록한다.
+     * [IN]  memberId=1, lines=[(productId=3, quantity=2, price=8900)]
+     * [OUT] orders INSERT (id=7, status=PAYMENT_PENDING, total_amount=17800)
+     *       outbox_events INSERT → (0.5초 뒤 OutboxRelay가) Kafka produce
+     *         topic=shop.order.created, key="7",
+     *         payload={"orderId":7,"memberId":1,"items":[{"productId":3,"qty":2,"price":8900}],
+     *                  "totalAmount":17800,"expiresAt":"2026-11-24T10:15:00"}
+     *       → 받는 쪽: PaymentEventListener.onOrderCreated (group shop-payment)
+     * </pre>
      */
     private long create(long memberId, String idempotencyKey, List<OrderLine> lines, ShippingInfo shipping) {
         return transaction.execute(status -> {

@@ -38,6 +38,17 @@ public class DeadLetterRetryService {
         return deadLetters.findTop50ByOrderByIdDesc();
     }
 
+    /**
+     * 관리자 [재처리] 버튼 (POST /api/admin/dlt/{id}/retry).
+     * <pre>
+     * [IN]  deadLetterId=5
+     *       → dead_letter_events(id=5): original_topic="shop.order.created",
+     *         payload='{"eventId":"9b1deb4d-...","aggregateId":7,...}'
+     * [OUT] EventOutbox.republish("9b1deb4d-...", "shop.order.created", "7", payload)
+     *       → outbox_events 행 PENDING → OutboxRelay가 shop.order.created로 다시 produce
+     *       dead_letter_events(id=5).retried_at=now  (두 번째 클릭은 DEAD_LETTER_ALREADY_RETRIED)
+     * </pre>
+     */
     @Transactional
     public void retry(long deadLetterId) {
         DeadLetterEvent deadLetter = deadLetters.findById(deadLetterId)

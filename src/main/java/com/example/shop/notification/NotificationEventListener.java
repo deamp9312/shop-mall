@@ -22,18 +22,41 @@ class NotificationEventListener {
         this.notifications = notifications;
     }
 
+    /**
+     * <pre>
+     * [IN]  topic=shop.payment.completed, key="7"
+     *       value={"eventId":"7a8b...","eventType":"PAYMENT_COMPLETED",...,
+     *              "payload":{"orderId":7,"paymentId":11,"amount":17800,"approvedAt":"2026-11-24T10:03:21"}}
+     * [OUT] notification_logs INSERT (order_id=7, type=PAYMENT_COMPLETED, event_id="7a8b...")
+     *       ※ 같은 이벤트를 shop-order, shop-stock group도 각자 받는다 (group이 다르면 모두 받음)
+     * </pre>
+     */
     @KafkaListener(topics = EventTopics.PAYMENT_COMPLETED, groupId = ConsumerGroups.NOTIFICATION)
     void onPaymentCompleted(ConsumerRecord<String, String> record) {
         processor.process(ConsumerGroups.NOTIFICATION, record, PaymentCompletedEvent.class, event ->
                 notifications.record(event.payload().orderId(), NotificationType.PAYMENT_COMPLETED, event.eventId()));
     }
 
+    /**
+     * <pre>
+     * [IN]  topic=shop.payment.failed, key="7"
+     *       value={"eventId":"5c6d...","eventType":"PAYMENT_FAILED",...,"payload":{"orderId":7,"paymentId":11}}
+     * [OUT] notification_logs INSERT (order_id=7, type=PAYMENT_FAILED, event_id="5c6d...")
+     * </pre>
+     */
     @KafkaListener(topics = EventTopics.PAYMENT_FAILED, groupId = ConsumerGroups.NOTIFICATION)
     void onPaymentFailed(ConsumerRecord<String, String> record) {
         processor.process(ConsumerGroups.NOTIFICATION, record, PaymentFailedEvent.class, event ->
                 notifications.record(event.payload().orderId(), NotificationType.PAYMENT_FAILED, event.eventId()));
     }
 
+    /**
+     * <pre>
+     * [IN]  topic=shop.payment.cancelled, key="7"
+     *       value={"eventId":"e1f2...","eventType":"PAYMENT_CANCELLED",...,"payload":{"orderId":7,"paymentId":11}}
+     * [OUT] notification_logs INSERT (order_id=7, type=PAYMENT_CANCELLED, event_id="e1f2...")
+     * </pre>
+     */
     @KafkaListener(topics = EventTopics.PAYMENT_CANCELLED, groupId = ConsumerGroups.NOTIFICATION)
     void onPaymentCancelled(ConsumerRecord<String, String> record) {
         processor.process(ConsumerGroups.NOTIFICATION, record, PaymentCancelledEvent.class, event ->

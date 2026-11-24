@@ -25,6 +25,17 @@ class DeadLetterListener {
         this.deadLetters = deadLetters;
     }
 
+    /**
+     * <pre>
+     * [IN]  topic="shop.order.created.DLT", key="7",
+     *       value='{"eventId":"9b1deb4d-...","eventType":"ORDER_CREATED",...}' (원본 그대로)
+     *       headers: kafka_dlt-original-topic="shop.order.created",
+     *                kafka_dlt-exception-message="Listener method ... threw exception; forced failure ..."
+     * [OUT] dead_letter_events INSERT
+     *       original_topic="shop.order.created", payload='{...원본 JSON...}', error_message="...", retried_at=null
+     *       → 관리자 이벤트 화면에 표시됨
+     * </pre>
+     */
     @KafkaListener(groupId = ConsumerGroups.DEAD_LETTER, topics = {
             EventTopics.ORDER_CREATED_DLT, EventTopics.ORDER_CANCELLED_DLT, EventTopics.PAYMENT_COMPLETED_DLT,
             EventTopics.PAYMENT_FAILED_DLT, EventTopics.PAYMENT_CANCELLED_DLT, EventTopics.PAYMENT_CANCEL_REQUESTED_DLT})

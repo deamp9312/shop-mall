@@ -94,6 +94,21 @@ public class OutboxRelay {
         }
     }
 
+    /**
+     * ★ 이 프로젝트에서 Kafka로 메시지를 보내는(produce) 유일한 곳이다.
+     * <pre>
+     * [IN]  outbox_events 행
+     *       id=101, event_id="9b1deb4d-...", topic="shop.order.created", message_key="7", status=PENDING,
+     *       payload='{"eventId":"9b1deb4d-...","eventType":"ORDER_CREATED","traceId":"f3a9c1d2e4b5",...}'
+     * [OUT] Kafka record 전송 (kafka.send)
+     *       topic="shop.order.created", key="7", value=payload 문자열 그대로,
+     *       headers={traceId:"f3a9c1d2e4b5", eventId:"9b1deb4d-...", eventType:"ORDER_CREATED"}
+     *       → broker 응답: partition=1, offset=42 (key "7"의 해시로 partition이 정해진다)
+     *       → 성공: 행 status=SENT, sent_at=now          return SENT
+     *       → broker 다운/타임아웃: 행 그대로 PENDING     return BROKER_UNAVAILABLE
+     *       → 그 외 실패: retry_count+1 (5회면 FAILED)    return FAILED
+     * </pre>
+     */
     private PublishResult publishOne(OutboxEvent event) {
         EnvelopeHeaders headers = headersOf(event);
         MDC.put(MdcKeys.ORDER_ID, event.getMessageKey());
@@ -139,6 +154,14 @@ public class OutboxRelay {
         return false;
     }
 
+    /**
+     * outbox 행 → Kafka ProducerRecord 변환.
+     * <pre>
+     * [IN]  topic="shop.order.created", messageKey="7", payload='{...envelope JSON...}', traceId/eventType(JSON에서 추출)
+     * [OUT] ProducerRecord(topic="shop.order.created", key="7", value='{...envelope JSON...}')
+     *       + headers traceId / eventId / eventType (byte[] UTF-8)
+     * </pre>
+     */
     private static ProducerRecord<String, String> toRecord(OutboxEvent event, EnvelopeHeaders headers) {
         ProducerRecord<String, String> record =
                 new ProducerRecord<>(event.getTopic(), event.getMessageKey(), event.getPayload());

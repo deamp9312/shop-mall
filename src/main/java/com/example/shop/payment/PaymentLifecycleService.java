@@ -56,6 +56,15 @@ public class PaymentLifecycleService {
         }
     }
 
+    /**
+     * <pre>
+     * [IN]  payment(id=11, orderId=7, amount=17800, status=APPROVED)
+     * [OUT] payments(id=11).status → CANCELLED
+     *       outbox_events INSERT → Kafka produce
+     *         topic=shop.payment.cancelled, key="7", payload={"orderId":7,"paymentId":11}
+     *       → 받는 쪽: NotificationEventListener.onPaymentCancelled (shop-notification)
+     * </pre>
+     */
     private void refund(Payment payment) {
         log.info("mock PG refund: paymentId={} amount={}", payment.getId(), payment.getAmount());
         payment.cancel();

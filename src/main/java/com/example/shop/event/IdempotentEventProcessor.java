@@ -38,6 +38,22 @@ public class IdempotentEventProcessor {
         this.failureSwitch = failureSwitch;
     }
 
+    /**
+     * 모든 {@code @KafkaListener}가 받은 record를 이 메서드에 넘긴다. JSON 파싱 → 중복 확인 → handler 실행 순서다.
+     * <pre>
+     * [IN]  consumerGroup="shop-payment"
+     *       record: topic="shop.order.created", partition=1, offset=42, key="7",
+     *               value='{"eventId":"9b1deb4d-...","eventType":"ORDER_CREATED","aggregateId":7,
+     *                       "traceId":"f3a9c1d2e4b5","payload":{"orderId":7,"memberId":1,...}}'
+     *       payloadType=OrderCreatedEvent.class
+     * [변환] value(String) → EventEnvelope(eventId="9b1deb4d-...", payload=OrderCreatedEvent(orderId=7, ...))
+     * [OUT] 처음 받은 이벤트: processed_events INSERT ("shop-payment", "9b1deb4d-...") + handler 실행 → 한 번에 commit
+     *       이미 처리한 이벤트: handler 실행 없이 return ("duplicate event skipped" 로그)
+     *       JSON이 깨졌으면:    MalformedEventException → 재시도 없이 shop.order.created.DLT 로
+     *       handler 예외:       전부 롤백 → KafkaConfig의 error handler가 1s/2s/4s 재시도 후 DLT 로
+     *       메서드가 정상 리턴하면 Spring Kafka가 offset 42를 commit 한다 (다음엔 43부터 읽음)
+     * </pre>
+     */
     public <P> void process(String consumerGroup, ConsumerRecord<String, String> record, Class<P> payloadType,
                             Consumer<EventEnvelope<P>> handler) {
         EventEnvelope<P> event = parse(record, payloadType);

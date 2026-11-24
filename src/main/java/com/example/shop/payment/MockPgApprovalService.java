@@ -101,6 +101,18 @@ public class MockPgApprovalService {
         }
     }
 
+    /**
+     * <pre>
+     * [IN]  payment(id=11, orderId=7, amount=17800, status=READY), approved=true|false, method
+     * [OUT] approved=true:  payments(id=11) READY → APPROVED, outbox_events INSERT → Kafka produce
+     *         topic=shop.payment.completed, key="7",
+     *         payload={"orderId":7,"paymentId":11,"amount":17800,"approvedAt":"2026-11-24T10:03:21"}
+     *         → 받는 쪽: OrderEventListener / StockEventListener / NotificationEventListener .onPaymentCompleted
+     *       approved=false: payments(id=11) READY → FAILED, outbox_events INSERT → Kafka produce
+     *         topic=shop.payment.failed, key="7", payload={"orderId":7,"paymentId":11}
+     *         → 받는 쪽: OrderEventListener / StockEventListener / NotificationEventListener .onPaymentFailed
+     * </pre>
+     */
     private PaymentStatus settleReadyPayment(Payment payment, boolean approved, PaymentMethod method) {
         if (payment.getStatus() != PaymentStatus.READY) {
             return settledStatusOf(payment);

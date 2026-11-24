@@ -58,6 +58,16 @@ public class OrderCancellationService {
         return Boolean.TRUE.equals(cancelled);
     }
 
+    /**
+     * <pre>
+     * [IN]  order(id=7, memberId=1), reason=USER_CANCEL (또는 PAYMENT_TIMEOUT)
+     * [OUT] orders(id=7).status → CANCELLED
+     *       outbox_events INSERT → Kafka produce
+     *         topic=shop.order.cancelled, key="7", payload={"orderId":7,"memberId":1,"reason":"USER_CANCEL"}
+     *       → 받는 쪽: PaymentEventListener.onOrderCancelled (shop-payment),
+     *                  StockEventListener.onOrderCancelled (shop-stock)
+     * </pre>
+     */
     private void cancel(Order order, CancelReason reason) {
         order.cancel(reason);
         outbox.record(new OrderCancelledEvent(order.getId(), order.getMemberId(), reason.name()));

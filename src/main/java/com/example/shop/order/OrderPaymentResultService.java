@@ -35,6 +35,15 @@ public class OrderPaymentResultService {
     /**
      * PAYMENT_PENDING -> PAID. 취소된 주문(타임아웃 또는 사용자 취소로, 결제가 너무 늦게 도착한 경우)은 조용히
      * 건너뛰지 않고 결제 모듈에 결제 취소를 요청한다 (REQ-F-009 3). 그 밖의 경우는 전이 테이블이 거부한다.
+     * <pre>
+     * (OrderEventListener.onPaymentCompleted 가 shop.payment.completed 를 받아 호출)
+     * [IN]  orderId=7, approvedAt=2026-11-24T10:03:21, cause=(eventId="7a8b...", eventType="PAYMENT_COMPLETED")
+     * [OUT] 정상:          orders(id=7) PAYMENT_PENDING → PAID. Kafka 발행 없음
+     *       이미 취소된 주문: outbox_events INSERT → Kafka produce
+     *         topic=shop.payment.cancel-requested, key="7",
+     *         payload={"orderId":7,"reason":"ORDER_ALREADY_CANCELLED"}
+     *         → 받는 쪽: PaymentEventListener.onCancelRequested (shop-payment)
+     * </pre>
      */
     @Transactional(propagation = Propagation.MANDATORY)
     public void applyPaymentCompleted(long orderId, LocalDateTime approvedAt, StatusChangeCause cause) {

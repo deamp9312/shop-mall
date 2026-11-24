@@ -48,6 +48,15 @@ class KafkaConfig {
      * exponential back-off으로 재시도한 뒤 record를 같은 partition의 topic + ".DLT"로 발행한다.
      * 형식이 잘못된 record, 상태 테이블이 금지한 전이, 비즈니스 규칙 위반(ShopException, 예: 존재하지 않는 주문의
      * 이벤트)은 매번 똑같이 실패하므로 재시도를 건너뛴다.
+     * <pre>
+     * [IN]  listener가 예외를 던진 record: topic="shop.order.created", partition=1, offset=42, key="7", value='{...}'
+     * [OUT] 재시도 (같은 offset 42를 다시 읽음): 1초 후 → 2초 후 → 4초 후
+     *       4번째도 실패하면 DLT로 produce:
+     *         topic="shop.order.created.DLT", partition=1, key="7", value='{...}' (원문 그대로)
+     *         headers 추가: kafka_dlt-original-topic="shop.order.created", kafka_dlt-original-offset=42,
+     *                       kafka_dlt-exception-message="...예외 메시지..." 등
+     *       → offset 42 commit, 다음 record(43) 처리로 넘어감
+     * </pre>
      */
     @Bean
     DefaultErrorHandler kafkaErrorHandler(KafkaOperations<String, String> kafkaTemplate) {
