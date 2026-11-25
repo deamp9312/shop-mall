@@ -57,6 +57,15 @@ public class OrderService {
     }
 
     /**
+     * <pre>
+     * [IN]  memberId=1, idempotencyKey="a1b2c3d4-e5f6-...", items=[(productId=3, qty=2)]
+     * [Redis] SET shop:idem:order:a1b2c3d4-e5f6-... "IN_PROGRESS" NX EX 86400   (IdempotencyKeys.claim)
+     *           → 처음 온 요청이면 주문 생성 (재고 차감 EVAL stock-reserve.lua 포함)
+     *         SET shop:idem:order:a1b2c3d4-e5f6-... "7" EX 86400                 (complete: 결과 저장)
+     *         (실패 시) DEL shop:idem:order:a1b2c3d4-e5f6-...                    (abandon: 재시도 허용)
+     * [OUT] 7 (orderId). 같은 키로 다시 요청하면 주문을 새로 만들지 않고 7을 그대로 돌려준다
+     * </pre>
+     *
      * @return 새 주문의 id, 또는 같은 키로 앞서 들어온 요청이 생성한 주문의 id
      * @throws ShopException OUT_OF_STOCK (예약된 것도, 생성된 주문도 없음), REQUEST_IN_PROGRESS, PRODUCT_NOT_ON_SALE, ...
      */

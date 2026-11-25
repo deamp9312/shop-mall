@@ -21,10 +21,24 @@ public class AvailableStockReader {
         this.redis = redis;
     }
 
+    /**
+     * <pre>
+     * [IN]  productId=3
+     * [Redis] GET shop:stock:3 → "48"   (키가 없으면 nil → 0, 품절로 표시)
+     * [OUT] 48
+     * </pre>
+     */
     public long availableOf(long productId) {
         return parse(redis.opsForValue().get(RedisKeys.stock(productId)));
     }
 
+    /**
+     * <pre>
+     * [IN]  productIds=[3, 5, 9]
+     * [Redis] MGET shop:stock:3 shop:stock:5 shop:stock:9 → ["48", "0", nil]   (한 번의 왕복으로 여러 개 조회)
+     * [OUT] {3: 48, 5: 0, 9: 0}
+     * </pre>
+     */
     public Map<Long, Long> availableOf(List<Long> productIds) {
         Map<Long, Long> available = new HashMap<>();
         if (productIds.isEmpty()) {

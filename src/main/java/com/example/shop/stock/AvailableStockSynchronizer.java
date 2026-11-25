@@ -83,6 +83,13 @@ public class AvailableStockSynchronizer {
     /**
      * epoch는 DB를 읽은 뒤, 첫 카운터를 쓰기 전에 올린다. 이 시점에 아직 대기 중인 롤백 보상은 이미 롤백이 반영된 값
      * 위에 한 번 더 적용될 것이므로 건너뛴다 ({@link AvailableStockCounter#addUnlessResynced}).
+     * <pre>
+     * [IN]  stocks=[(productId=3, quantity=48), (productId=5, quantity=0)]  (DB 재고 - RESERVED 수량)
+     * [Redis] INCR shop:stock-sync:epoch → 13
+     *         SET shop:stock:3 "48"
+     *         SET shop:stock:5 "0"
+     * [OUT] 2 (다시 쓴 상품 수)
+     * </pre>
      */
     private int writeCounters(List<AvailableStock> stocks) {
         redis.opsForValue().increment(RedisKeys.stockSyncEpoch());

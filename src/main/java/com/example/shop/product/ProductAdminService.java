@@ -44,6 +44,13 @@ public class ProductAdminService {
         return product.getId();
     }
 
+    /**
+     * <pre>
+     * [IN]  productId=3, 바뀐 상품 정보 (예: price 8900 → 9900)
+     * [Redis] (메서드 성공 후 {@code @CacheEvict}가) DEL shop:product:3
+     *         → 다음 ProductCatalog.getProduct(3) 호출이 DB에서 새 값을 읽어 다시 캐시한다
+     * </pre>
+     */
     @Transactional
     @CacheEvict(cacheNames = ProductCatalog.CACHE_NAME, key = "#productId")
     public void update(long productId, long categoryId, ProductDetails details) {
@@ -51,6 +58,12 @@ public class ProductAdminService {
         log.info("product updated: productId={}", productId);
     }
 
+    /**
+     * <pre>
+     * [IN]  productId=3
+     * [Redis] DEL shop:product:3   (판매중지 상태가 캐시에 남아 계속 "판매중"으로 보이지 않도록)
+     * </pre>
+     */
     @Transactional
     @CacheEvict(cacheNames = ProductCatalog.CACHE_NAME, key = "#productId")
     public void stopSale(long productId) {

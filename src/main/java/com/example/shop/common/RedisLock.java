@@ -26,7 +26,18 @@ public class RedisLock {
         this.redis = redis;
     }
 
-    /** 락이 비어 있을 때만 작업을 실행하고 그 결과를 반환한다. 그렇지 않으면 {@code whenBusy}를 던진다. */
+    /**
+     * 락이 비어 있을 때만 작업을 실행하고 그 결과를 반환한다. 그렇지 않으면 {@code whenBusy}를 던진다.
+     * <pre>
+     * [IN]  name="order-timeout", ttl=50s, task=cancelOverdueBatch
+     * [Redis] SET shop:lock:order-timeout "3f2c9a1e-..." NX PX 50000
+     *           → "OK"  : 락 획득 → task 실행
+     *           → (nil) : 다른 인스턴스가 이미 잡음 → ShopException(whenBusy)
+     *         (작업 끝나면) EVAL lock-release.lua KEYS=[shop:lock:order-timeout] ARGV=["3f2c9a1e-..."]
+     *           → 값이 내 토큰과 같을 때만 DEL (TTL 만료 후 남이 잡은 락을 지우지 않기 위해)
+     * [OUT] task의 반환값
+     * </pre>
+     */
     public <T> T runExclusively(String name, Duration ttl, ErrorCode whenBusy, Supplier<T> task) {
         String key = RedisKeys.lock(name);
         String token = UUID.randomUUID().toString();

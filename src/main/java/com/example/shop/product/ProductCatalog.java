@@ -25,6 +25,18 @@ public class ProductCatalog {
         this.categories = categories;
     }
 
+    /**
+     * <pre>
+     * Redis를 직접 부르지 않는다. {@code @Cacheable} 프록시가 메서드 앞뒤에서 Redis를 확인한다.
+     * [IN]  productId=3
+     * [Redis] GET shop:product:3
+     *           → 값 있음 (cache hit) : 메서드 본문(DB 조회)을 실행하지 않고 JSON을 ProductInfo로 바꿔 반환
+     *           → (nil)  (cache miss): DB 조회 후 SET shop:product:3 '{...}' PX 600000 (TTL 10분)
+     *         저장되는 값: {"id":3,"categoryId":1,"categoryName":"의류","name":"반팔 티셔츠","description":"...",
+     *                      "price":8900,"imageUrl":"/images/3.jpg","saleStatus":"ON_SALE"}
+     * [OUT] ProductInfo(id=3, name="반팔 티셔츠", price=8900, ...)
+     * </pre>
+     */
     @Cacheable(cacheNames = CACHE_NAME, key = "#productId")
     public ProductInfo getProduct(long productId) {
         return products.findWithCategoryById(productId)

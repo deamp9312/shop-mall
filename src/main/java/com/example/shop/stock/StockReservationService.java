@@ -35,6 +35,15 @@ public class StockReservationService {
 
     /**
      * RESERVED 행을 기록하고, 모든 상품의 Redis 재고를 한 번의 Lua 호출로 차감한다.
+     * <pre>
+     * [IN]  orderId=7, quantities={3: 2}
+     * [DB]    stock_reservations INSERT (order_id=7, product_id=3, quantity=2, status=RESERVED)  ← 아직 커밋 전
+     * [Redis] GET shop:stock-sync:epoch → "12"
+     *         EVAL stock-reserve.lua KEYS=[shop:stock:3] ARGV=["2"] → 50 → 48, return []
+     *         ※ Redis는 DB 트랜잭션에 묶이지 않는다. 그래서 주문 트랜잭션이 나중에 롤백되면
+     *           AfterRollback이 INCRBY shop:stock:3 2 로 직접 되돌린다 (보상)
+     * [OUT] 없음 / 재고 부족이면 OutOfStockException([3]) → 주문 트랜잭션 롤백
+     * </pre>
      *
      * @param quantities productId -> quantity
      * @throws OutOfStockException 재고가 부족한 상품이 하나라도 있을 때. 아무것도 차감하지 않으며 호출자가 롤백한다
